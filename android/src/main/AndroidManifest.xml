@@ -15,7 +15,7 @@
         android:usesCleartextTraffic="true">
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.reactlibrary.provider"
+            android:authorities="$(applicationId).com.reactlibrary.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -24,4 +24,3 @@
         </provider>
     </application>
 </manifest>
-  
