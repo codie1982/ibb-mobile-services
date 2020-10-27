@@ -1,14 +1,14 @@
 # ibb-mobile-services
 
-## Getting started
+## Başlarken
 
 `$ npm install ibb-mobile-services --save`
 
-### Mostly automatic installation
+### Genellikle Automatik kurulum tercih edin
 
 `$ react-native link ibb-mobile-services`
 
-### Manual installation
+### Manual Kurulum
 
 #### iOS
 
@@ -44,7 +44,7 @@
 - Add `using Ibb.Mobile.Services.RNIbbMobileServices;` to the usings at the top of the file
 - Add `new RNIbbMobileServicesPackage()` to the `List<IReactPackage>` returned by the `Packages` method
 
-## Usage
+## Kullanım
 
 ```javascript
 import IBB from 'ibb-mobile-services';
@@ -66,5 +66,5 @@ import IBB from 'ibb-mobile-services';
 ```
 
 Modulu React native üzerinde en dış kataman ekleyin.
-Config ayarları bağlantı kurulacak enpointi ve port numarasını tanımlar
+Config ayarları bağlantı kurulacak enpoint ve port numarasını ekleyin
 application_uuid servis tarafından uygulamanıza verilen uniqID UUID formatında olmalıdır.
