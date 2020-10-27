@@ -1,0 +1,6 @@
+framework module Pods_RNIbbMobileServices {
+  umbrella header "Pods-RNIbbMobileServices-umbrella.h"
+
+  export *
+  module * { export * }
+}
