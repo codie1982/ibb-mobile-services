@@ -1,22 +1,47 @@
 {
-  "name": "ibb-mobile-services",
-  "version": "1.0.1",
-  "description": "İstanbul Büyük Şehir Belediyesi Mobil Cihaz Modülü ",
-  "main": "index.js",
-  "homepage":"https://github.com/codie1982/ibb-mobile-services.git"
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "_from": "ibb-mobile-services@^1.0.0",
+  "_id": "ibb-mobile-services@1.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-RXC7GwpkK7BHZdlmSJ3JPhtKgCLzUAJpqzBcrPMVNOYlvT4Xcvj6UR+BOFMKXf+oICxqxZqfNM/JyNcE1xK+AA==",
+  "_location": "/ibb-mobile-services",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "ibb-mobile-services@^1.0.0",
+    "name": "ibb-mobile-services",
+    "escapedName": "ibb-mobile-services",
+    "rawSpec": "^1.0.0",
+    "saveSpec": null,
+    "fetchSpec": "^1.0.0"
   },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.0.0.tgz",
+  "_shasum": "4d45241d5568b6f26d78b74f8e7c787d933c92b2",
+  "_spec": "ibb-mobile-services@^1.0.0",
+  "_where": "/Users/enginerol/Documents/reactNative/yolbakim",
+  "author": "",
+  "bundleDependencies": false,
+  "dependencies": {
+    "socket.io-client": "^2.3.0"
+  },
+  "deprecated": false,
+  "description": "## Getting started",
   "keywords": [
     "react-native"
   ],
-  "author": "",
   "license": "",
+  "main": "index.js",
+  "name": "ibb-mobile-services",
   "peerDependencies": {
     "react-native": "^0.41.2",
     "react-native-windows": "0.41.0-rc.1"
   },
-  "dependencies": {
-    "socket.io-client": "^2.3.0"
-  }
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
 }

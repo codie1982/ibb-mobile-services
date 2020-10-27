@@ -3,7 +3,7 @@ import Version from "./component/version"
 import Test from "./component/test"
 import Error from "./component/error"
 import io from 'socket.io-client';
-import { settings } from "./Lib/models/Settings"
+import Settings from "./Lib/models/Settings"
 import DeviceModel from "./Lib/models/DeviceModel"
 export default class IMS {
     constructor() {
@@ -16,15 +16,25 @@ export default class IMS {
     }
 
     /**
+* 
+* @param {Object} config 
+*/
+    async setSettings(config) {
+        const settings = new Settings();
+        this.settings = await settings.setSettings(config)
+    }
+
+    /**
      * 
-     * @param {String} applicationId 
+     * @param {String} application_uuid 
      */
-    setApplicationModel(applicationId) {
+    setApplicationModel(application_uuid) {
         return new Promise((resolve, reject) => {
             (async () => {
                 const deviceModel = new DeviceModel;
-                let model = await deviceModel.createInitModel(applicationId)
+                let model = await deviceModel.createInitModel(application_uuid)
                 //model.applicationId = applicationId
+                console.log("model", model)
                 this.model = model
                 resolve(true)
             })()
@@ -40,12 +50,12 @@ export default class IMS {
             })()
         })
     }
-    setVersionModel(applicationId) {
+    setVersionModel(application_uuid) {
         return new Promise((resolve, reject) => {
             (async () => {
                 const deviceModel = new DeviceModel;
                 let versionModel = await deviceModel.createVersionModel()
-                versionModel.application_uuid = applicationId
+                versionModel.application_uuid = application_uuid
                 this.versionModel = versionModel
                 resolve(this.versionModel)
             })()
@@ -53,9 +63,10 @@ export default class IMS {
     }
     init() {
         return new Promise((resolve, reject) => {
-            const socket = io(`${settings.URL}:${settings.PORT}`);
+            const socket = io(`${this.settings.base_url}`);
             const modelObject = this.model
             socket.emit("active_connection", JSON.stringify(modelObject))
+
             socket.on("getToken", (token) => {
                 this.token = token
                 resolve(token)
@@ -64,8 +75,7 @@ export default class IMS {
             socket.on("setDevice", async (isSetDevice) => {
                 if (isSetDevice) {
                     const data = await this.setDeviceModel()
-                    //`${baseUrl}:${MAINPORT}/api/mobile/v1/init`;
-                    this.send(settings.INITURL, data, this.token)
+                    this.send(this.settings.init_url, data, this.token)
                 }
                 resolve(true)
             })
@@ -76,9 +86,10 @@ export default class IMS {
         const config = this.createHeader(data, token)
         if (typeof url != "undefined" && typeof token != "undefined") {
             const response = await fetch(url, config)
-            //console.log(response)
             const version = await response.json()
             return version
+        }else {
+            return false
         }
         //.catch(err => console.log("err", url, { err }))
     }
@@ -101,7 +112,7 @@ export default class IMS {
     async setState(application_uuid, token) {
         const versionModel = await this.setVersionModel(application_uuid)
         //console.log("versionModel",versionModel)
-        const data = await this.send(settings.STATEURL, versionModel, token)
+        const data = await this.send(this.settings.version_url, versionModel, token) 
         if (typeof data.result != "undefined")
             return data.result
         return false

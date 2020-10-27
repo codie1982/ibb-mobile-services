@@ -1,18 +1,17 @@
 import Info from "./info"
 //import NetInfo from "@react-native-community/netinfo";
 export default class DeviceModel {
-    async  createInitModel(applicationId) {
-        let deviceId = await Info.getDeviceId()
+    async  createInitModel(application_uuid) {
+        let device_id = await Info.getDeviceId()
         let package_name = await Info.getBundleId()
         let version_number = await Info.getVersionCode()
        // const state = await NetInfo.fetch()
-        return { deviceId, package_name ,version_number,applicationId}
+        return { device_id, package_name ,version_number,application_uuid}
         /*    console.log("SSID", state.details.ssid);
            console.log("BSSID", state.details.bssid);
            console.log("Is connected?", state.isConnected);
            console.log('Initial, type: ' + state.type);
     */
-
         /*  let location = ""
          let platform = ""
          let currenVversion = ""
@@ -29,15 +28,15 @@ export default class DeviceModel {
 
     }
     async  createDeviceModel() {
-        let deviceId = await Info.getDeviceId()
+        let device_id = await Info.getDeviceId()
         let package_name = await Info.getBundleId()
         let brand = await Info.getBrand()
         let model = await Info.getModel()
         let deviceName = await Info.getDeviceName()
         let manufacturer = await Info.getManufacturer()
         //const state = await NetInfo.fetch()
-        return { deviceId, package_name,brand,model,deviceName,manufacturer }
-        /* let deviceId = ""
+        return { device_id, package_name,brand,model,deviceName,manufacturer }
+        /* let device_id = ""
         let package_name = ""
         let getApiLevel = ""
         let getBaseOs = ""
@@ -72,7 +71,7 @@ export default class DeviceModel {
     }
 
     async  createVersionModel() {
-        let deviceId = await Info.getDeviceId()
+        let device_id = await Info.getDeviceId()
         let package_name = await Info.getBundleId()
         let current_version_number = await Info.getVersionCode()
         let brand = await Info.getBrand()
@@ -80,7 +79,7 @@ export default class DeviceModel {
         let deviceName = await Info.getDeviceName()
         let manufacturer = await Info.getManufacturer()
         //const state = await NetInfo.fetch()
-        return { deviceId, package_name, current_version_number, brand, model,manufacturer,deviceName }
+        return { device_id, package_name, current_version_number, brand, model,manufacturer,deviceName }
         /* let deviceId = ""
         let package_name = ""
         let getApiLevel = ""

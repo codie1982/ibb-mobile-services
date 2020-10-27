@@ -20,9 +20,13 @@ export default function IBB(props) {
 
     useEffect(() => {
         const check = async () => {
-            const state = await ims.setState(props.application_uuid, token)
-            console.log("state", state)
-            setScreen({ action: state.action, state: state })
+            if (typeof token == "undefined" || token == null) {
+                console.log("Token Alınamıyor..")
+            } else {
+                const state = await ims.setState(props.application_uuid, token)
+                console.log("state", state)
+                setScreen({ action: state.action, state: state })
+            }
         }
         check()
     }, [token])
