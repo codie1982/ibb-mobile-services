@@ -3,7 +3,6 @@ import { settings } from "../../Lib/models/Settings"
 export const combineURL = (url) => {
     return settings.BASEURL + "/" + url
 }
-
 export const setStyle = (imageWidth, imageHeight, percent,position) => {
     const { width, height } = Dimensions.get("screen")
     const rate = (width * percent / 100) / imageWidth
@@ -22,11 +21,9 @@ export const setStyle = (imageWidth, imageHeight, percent,position) => {
     }
  
 }
-
 export const upperCase = (str) => {
   return str.toUpperCase()
 }
-
 export const textLength = (text1, text2) => {
     const txt = text1+text2;
     console.log(txt.length)

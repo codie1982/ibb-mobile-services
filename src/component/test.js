@@ -7,6 +7,7 @@ const CRITICAL = "critical"
 const LOW = "low"
 const IMPORTANT = "important"
 
+
 export default function Version({ detail, message, close }) {
     //console.log("Detail", detail)
     const [isLoading, setIsLoading] = useState(true)

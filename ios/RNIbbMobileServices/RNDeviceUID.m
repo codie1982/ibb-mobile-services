@@ -12,14 +12,14 @@
 
 @end
 
-NSString * const IBBKey = @"rndeviceUID";
+NSString * const UIDKey = @"deviceUID";
 
 @implementation RNDeviceUID
 
 @synthesize uid = _uid;
 
 #pragma mark - Public methods
- 
+
 + (NSString *)uid {
     return [[[RNDeviceUID alloc] init] uid];
 }
@@ -47,8 +47,8 @@ NSString * const IBBKey = @"rndeviceUID";
     At last, the UID is persisted if needed to.
  */
 - (NSString *)uid {
-    if (!_uid) _uid = [[self class] valueForKeychainKey:IBBKey service:IBBKey];
-    if (!_uid) _uid = [[self class] valueForUserDefaultsKey:IBBKey];
+    if (!_uid) _uid = [[self class] valueForKeychainKey:UIDKey service:UIDKey];
+    if (!_uid) _uid = [[self class] valueForUserDefaultsKey:UIDKey];
     if (!_uid) _uid = [[self class] appleIFV];
     if (!_uid) _uid = [[self class] randomUUID];
     [self saveIfNeed];
@@ -63,22 +63,22 @@ NSString * const IBBKey = @"rndeviceUID";
     [self save];
     return _uid;
 }
- 
+
 /*! Persist UID to NSUserDefaults and Keychain
  */
 - (void)save {
-  [RNDeviceUID setValue:_uid forUserDefaultsKey:IBBKey];
-  [RNDeviceUID updateValue:_uid forKeychainKey:IBBKey inService:IBBKey];
+  [RNDeviceUID setValue:_uid forUserDefaultsKey:UIDKey];
+  [RNDeviceUID updateValue:_uid forKeychainKey:UIDKey inService:UIDKey];
 }
- 
+
 /*! Persist UID to NSUserDefaults and Keychain, if not yet saved
  */
 - (void)saveIfNeed {
-  if (![RNDeviceUID valueForUserDefaultsKey:IBBKey]) {
-    [RNDeviceUID setValue:_uid forUserDefaultsKey:IBBKey];
+  if (![RNDeviceUID valueForUserDefaultsKey:UIDKey]) {
+    [RNDeviceUID setValue:_uid forUserDefaultsKey:UIDKey];
   }
-  if (![RNDeviceUID valueForKeychainKey:IBBKey service:IBBKey]) {
-    [RNDeviceUID setValue:_uid forKeychainKey:IBBKey inService:IBBKey];
+  if (![RNDeviceUID valueForKeychainKey:UIDKey service:UIDKey]) {
+    [RNDeviceUID setValue:_uid forKeychainKey:UIDKey inService:UIDKey];
   }
 }
 

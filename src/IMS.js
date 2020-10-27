@@ -3,42 +3,28 @@ import Version from "./component/version"
 import Test from "./component/test"
 import Error from "./component/error"
 import io from 'socket.io-client';
-import Settings from "./Lib/models/Settings"
+import { settings } from "./Lib/models/Settings"
 import DeviceModel from "./Lib/models/DeviceModel"
 export default class IMS {
     constructor() {
         this.token;
-        this.application_uuid;
+        this.applicationId;
         this.model = {}
         this.deviceModel = {}
         this.versionModel = {}
         this.newVersion = false
-        this.settings = {}
-    }
-    /**
-  * 
-  * @param {Object} config 
-  */
-    setSettings(config) {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                const settings = new Settings();
-                this.settings = await settings.setSettings(config)
-                console.log("this.settings",this.settings)
-                // settings.createSettings()
-            })()
-        })
     }
 
     /**
      * 
-     * @param {String} application_uuid 
+     * @param {String} applicationId 
      */
-    setApplicationModel(application_uuid) {
+    setApplicationModel(applicationId) {
         return new Promise((resolve, reject) => {
             (async () => {
                 const deviceModel = new DeviceModel;
-                let model = await deviceModel.createInitModel(application_uuid)
+                let model = await deviceModel.createInitModel(applicationId)
+                //model.applicationId = applicationId
                 this.model = model
                 resolve(true)
             })()
@@ -54,12 +40,12 @@ export default class IMS {
             })()
         })
     }
-    setVersionModel(application_uuid) {
+    setVersionModel(applicationId) {
         return new Promise((resolve, reject) => {
             (async () => {
                 const deviceModel = new DeviceModel;
                 let versionModel = await deviceModel.createVersionModel()
-                versionModel.application_uuid = application_uuid
+                versionModel.application_uuid = applicationId
                 this.versionModel = versionModel
                 resolve(this.versionModel)
             })()
@@ -90,7 +76,7 @@ export default class IMS {
         const config = this.createHeader(data, token)
         if (typeof url != "undefined" && typeof token != "undefined") {
             const response = await fetch(url, config)
-            console.log("response", response)
+            //console.log(response)
             const version = await response.json()
             return version
         }
@@ -113,9 +99,8 @@ export default class IMS {
         }
     }
     async setState(application_uuid, token) {
-        console.log("application_uuid, token", application_uuid, token)
         const versionModel = await this.setVersionModel(application_uuid)
-        console.log("versionModel", versionModel, settings.STATEURL)
+        //console.log("versionModel",versionModel)
         const data = await this.send(settings.STATEURL, versionModel, token)
         if (typeof data.result != "undefined")
             return data.result
@@ -129,8 +114,6 @@ export default class IMS {
             case "test_version":
                 return <Test detail={state.version} message={state.message} close={closeCallback} />
             case "no_version":
-                return <Error message={state.message} />
-            case "no_application":
                 return <Error message={state.message} />
             default:
                 return <Version />
