@@ -34,7 +34,6 @@ export default class IMS {
                 const deviceModel = new DeviceModel;
                 let model = await deviceModel.createInitModel(application_uuid)
                 //model.applicationId = applicationId
-                console.log("model", model)
                 this.model = model
                 resolve(true)
             })()
@@ -66,12 +65,10 @@ export default class IMS {
             const socket = io(`${this.settings.base_url}`);
             const modelObject = this.model
             socket.emit("active_connection", JSON.stringify(modelObject))
-
             socket.on("getToken", (token) => {
                 this.token = token
                 resolve(token)
             })
-
             socket.on("setDevice", async (isSetDevice) => {
                 if (isSetDevice) {
                     const data = await this.setDeviceModel()
@@ -86,9 +83,9 @@ export default class IMS {
         const config = this.createHeader(data, token)
         if (typeof url != "undefined" && typeof token != "undefined") {
             const response = await fetch(url, config)
-            const version = await response.json()
-            return version
-        }else {
+            const result = await response.json()
+            return result
+        } else {
             return false
         }
         //.catch(err => console.log("err", url, { err }))
@@ -112,22 +109,24 @@ export default class IMS {
     async setState(application_uuid, token) {
         const versionModel = await this.setVersionModel(application_uuid)
         //console.log("versionModel",versionModel)
-        const data = await this.send(this.settings.version_url, versionModel, token) 
+        console.log("this.settings.version_url", this.settings.version_url)
+
+        const data = await this.send(this.settings.version_url, versionModel, token)
         if (typeof data.result != "undefined")
             return data.result
         return false
     }
 
-    getComponent(state, closeCallback) {
+    getComponent(state, config, closeCallback) {
         switch (state.component) {
             case "new_version":
-                return <Version detail={state.version} message={state.message} close={closeCallback} />
+                return <Version detail={state.version} message={state.message} close={closeCallback} config={config} />
             case "test_version":
-                return <Test detail={state.version} message={state.message} close={closeCallback} />
+                return <Test detail={state.version} message={state.message} close={closeCallback} config={config} />
             case "no_version":
-                return <Error message={state.message} />
+                return <Error message={state.message} config={config} />
             default:
-                return <Version />
+                return <Version detail={state.version} message={state.message} close={closeCallback} config={config} />
         }
     }
 }

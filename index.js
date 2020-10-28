@@ -10,9 +10,13 @@ export default function IBB(props) {
     //Açıklma
     useEffect(() => {
         const start = async () => {
+            //Dışardan girilen uygulama bilgilerini topluyor.
             await ims.setSettings(props.config)
+            //Uygulama Modeli Oluşturuyor
             await ims.setApplicationModel(props.application_uuid)
+            //Cihazı Kayıt Etmek için ilk
             const token = await ims.init()
+            //Cihaz kaydı yapıldıktan sonra token oluşturuluyor
             setToken(token)
         }
         start()
@@ -23,6 +27,8 @@ export default function IBB(props) {
             if (typeof token == "undefined" || token == null) {
                 console.log("Token Alınamıyor..")
             } else {
+                //versiyon durumu kontrol ediliyor...
+                console.log("versiyon durumu kontrol ediliyor...")
                 const state = await ims.setState(props.application_uuid, token)
                 console.log("state", state)
                 setScreen({ action: state.action, state: state })
@@ -36,7 +42,7 @@ export default function IBB(props) {
     }
     //console.log("screen",screen)
     if (screen.action) {
-        return ims.getComponent(screen.state, closeScreen)
+        return ims.getComponent(screen.state, props.config, closeScreen)
     } else {
         return (
             props.children

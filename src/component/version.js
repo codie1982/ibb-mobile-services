@@ -7,7 +7,7 @@ const CRITICAL = "critical"
 const LOW = "low"
 const IMPORTANT = "important"
 
-export default function Version({ detail, message, close }) {
+export default function Version({ detail, message, close,config }) {
     //console.log("Detail", detail)
     const [isLoading, setIsLoading] = useState(true)
     const [upgradeButton, setUpgradeButton] = useState("")
@@ -64,7 +64,7 @@ export default function Version({ detail, message, close }) {
 
 
     useEffect(() => {
-        console.log(combineURL(topImage.path))
+        console.log(combineURL(topImage.path,config))
         setIsLoading(false)
         if (detail.info.version.type == CRITICAL) {
             updateNewVersion()
@@ -116,7 +116,7 @@ export default function Version({ detail, message, close }) {
                     style={setStyle(topImage.width, topImage.height, 100)}
                     source={{
                         uri:
-                            combineURL(topImage.path),
+                            combineURL(topImage.path,config),
                     }}
                 />
             </View>
@@ -127,7 +127,7 @@ export default function Version({ detail, message, close }) {
                             style={setStyle(mainImage.width, mainImage.height, 80, true)}
                             source={{
                                 uri:
-                                    combineURL(mainImage.path),
+                                    combineURL(mainImage.path,config),
                             }}
                         /> : null}
 
@@ -174,7 +174,7 @@ export default function Version({ detail, message, close }) {
                     style={setStyle(bottomImage.width, bottomImage.height, 100)}
                     source={{
                         uri:
-                            combineURL(bottomImage.path),
+                            combineURL(bottomImage.path,config),
                     }}
                 />
                 <View style={styles.bottom_logo}>
@@ -182,7 +182,7 @@ export default function Version({ detail, message, close }) {
                         style={setStyle(logo.width, logo.height, 12)}
                         source={{
                             uri:
-                                combineURL(logo.path),
+                                combineURL(logo.path,config),
                         }}
                     />
                 </View>
