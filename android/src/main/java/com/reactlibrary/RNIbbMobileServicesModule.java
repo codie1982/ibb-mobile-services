@@ -80,8 +80,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     @Override
     public Map<String, Object> getConstants() {
         String appVersion, buildNumber, appName;
-
-
         try {
             //appVersion = getPackageInfo().versionName;
             buildNumber = Integer.toString(getPackageInfo().versionCode);
@@ -290,7 +288,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             case DownloadManager.STATUS_FAILED:
                 //pgsApplicationDownloading.setIndeterminate(true);
                 msg = "STATUS_FAILED!";
-
                 break;
 
             case DownloadManager.STATUS_PAUSED:
@@ -332,7 +329,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
 
         public void setupApplication(Context context, Intent intent) {
             if (Build.VERSION.SDK_INT >= 22) {
-                Uri contentUri = FileProvider.getUriForFile(context, "com.reactlibrary.provider",
+                Uri contentUri = FileProvider.getUriForFile(context, "$(applicationId).com.reactlibrary.provider",
                         new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(),
                                 FILEPATH));
                 Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);

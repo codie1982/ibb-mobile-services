@@ -4,26 +4,61 @@ import Test from "./component/test"
 import Error from "./component/error"
 import io from 'socket.io-client';
 import Settings from "./Lib/models/Settings"
-import DeviceModel from "./Lib/models/DeviceModel"
+import Model from "ibb-mobile-services/src/Lib/models/model"
+import Request from "./Lib/http"
 export default class IMS {
-    constructor() {
-        this.token;
-        this.applicationId;
-        this.model = {}
-        this.deviceModel = {}
-        this.versionModel = {}
-        this.newVersion = false
+    constructor(config) {
+        (async () => {
+            this.token;
+            this.applicationId;
+            this.model = {}
+            this.deviceModel = {}
+            this.versionModel = {}
+            this.newVersion = false
+            const settings = new Settings();
+            this.settings = await settings.setSettings(config)
+            this.socket = io(`${this.settings.base_url}`);
+
+        })()
     }
 
     /**
-* 
-* @param {Object} config 
-*/
-    async setSettings(config) {
-        const settings = new Settings();
-        this.settings = await settings.setSettings(config)
+       * Servisden Token almak için
+       * @param {string} application_uuid 
+       */
+    getToken(application_uuid) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                console.log("application_uuid", application_uuid)
+                if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
+                const model = new Model;
+                let initModel = await model.createInitModel(application_uuid)
+                const request = new Request;
+                let response = await request.send(this.settings.token_url, initModel)
+                resolve(response.token)
+            })()
+        })
     }
-
+    /**
+     * Uygulama Socket bağlantısı gerçekleşiyor.
+     * @param {string} application_uuid 
+     */
+    init(application_uuid) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                const model = new Model;
+                let initModel = await model.createInitModel(application_uuid)
+                this.socket.emit("active_connection", JSON.stringify(initModel))
+                this.socket.on("application_info", (application) => {
+                    if (application.success) {
+                        resolve(application.info)
+                    } else {
+                        reject({ message: application.message })
+                    }
+                })
+            })()
+        })
+    }
     /**
      * 
      * @param {String} application_uuid 
@@ -31,8 +66,6 @@ export default class IMS {
     setApplicationModel(application_uuid) {
         return new Promise((resolve, reject) => {
             (async () => {
-                const deviceModel = new DeviceModel;
-                let model = await deviceModel.createInitModel(application_uuid)
                 //model.applicationId = applicationId
                 this.model = model
                 resolve(true)
@@ -42,91 +75,70 @@ export default class IMS {
     setDeviceModel() {
         return new Promise((resolve, reject) => {
             (async () => {
-                const deviceModel = new DeviceModel;
-                let model = await deviceModel.createDeviceModel()
-                this.deviceModel = model
+                const model = new Model;
+                this.deviceModel = await model.createDeviceModel()
                 resolve(this.deviceModel)
             })()
         })
     }
-    setVersionModel(application_uuid) {
+    setVersionModel(application_info) {
         return new Promise((resolve, reject) => {
             (async () => {
-                const deviceModel = new DeviceModel;
-                let versionModel = await deviceModel.createVersionModel()
-                versionModel.application_uuid = application_uuid
+                const model = new Model;
+                let versionModel = await model.createVersionModel(application_info)
                 this.versionModel = versionModel
-                resolve(this.versionModel)
+                resolve(versionModel)
             })()
         })
     }
-    init() {
+
+    /**
+    * Cihazı Kayıt Etmek için
+    */
+    setDevice(token) {
         return new Promise((resolve, reject) => {
-            const socket = io(`${this.settings.base_url}`);
-            const modelObject = this.model
-            socket.emit("active_connection", JSON.stringify(modelObject))
-            socket.on("getToken", (token) => {
-                this.token = token
-                resolve(token)
-            })
-            socket.on("setDevice", async (isSetDevice) => {
-                if (isSetDevice) {
-                    const data = await this.setDeviceModel()
-                    this.send(this.settings.init_url, data, this.token)
-                }
+            (async () => {
+                const model = new Model;
+                let deviceModel = await model.createDeviceModel()
+                const request = new Request;
+                await request.send(this.settings.init_url, deviceModel, token)
                 resolve(true)
-            })
+            })()
         })
     }
 
-    async send(url, data, token) {
-        const config = this.createHeader(data, token)
-        if (typeof url != "undefined" && typeof token != "undefined") {
-            const response = await fetch(url, config)
-            const result = await response.json()
-            return result
-        } else {
-            return false
-        }
-        //.catch(err => console.log("err", url, { err }))
-    }
 
-    createHeader(data, token) {
-        return {
-            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-            mode: 'cors', // no-cors, *cors, same-origin
-            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: 'same-origin', // include, *same-origin, omit
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Baerer ` + token
-            },
-            redirect: 'follow', // manual, *follow, error
-            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify(data) // body data type must match "Content-Type" header
-        }
-    }
-    async setState(application_uuid, token) {
-        const versionModel = await this.setVersionModel(application_uuid)
+    async setState(application_info, token) {
+        const versionModel = await this.setVersionModel(application_info)
         //console.log("versionModel",versionModel)
         console.log("this.settings.version_url", this.settings.version_url)
-
-        const data = await this.send(this.settings.version_url, versionModel, token)
-        if (typeof data.result != "undefined")
-            return data.result
+        if (typeof this.settings.version_url != "undefined") {
+            const request = new Request;
+            const data = await request.send(this.settings.version_url, versionModel, token).catch(err => {
+                console.log("ERROR State", err)
+            })
+            if (typeof data.result != "undefined")
+                return data.result
+        }
         return false
     }
 
     getComponent(state, config, closeCallback) {
-        switch (state.component) {
-            case "new_version":
-                return <Version detail={state.version} message={state.message} close={closeCallback} config={config} />
-            case "test_version":
-                return <Test detail={state.version} message={state.message} close={closeCallback} config={config} />
-            case "no_version":
-                return <Error message={state.message} config={config} />
-            default:
-                return <Version detail={state.version} message={state.message} close={closeCallback} config={config} />
+        if (state.type == "error") {
+            return <Error component={state.component} message={state.message} config={config} />
+        } else {
+            switch (state.component) {
+                case "new_version":
+                    return <Version detail={state.version} message={state.message} close={closeCallback} config={config} />
+                case "test_version":
+                    return <Test detail={state.version} message={state.message} close={closeCallback} config={config} />
+                case "no_version":
+                    return <Error message={state.message} config={config} />
+                case "delete_application":
+                    return <Error message={state.message} config={config} />
+                default:
+                    return <Error message={state.message} config={config} />
+            }
         }
     }
 }

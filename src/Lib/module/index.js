@@ -1,1 +1,1 @@
-export *  from "./DeviceModule"
+export * from "./DeviceModule"

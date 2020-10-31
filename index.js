@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import IMS from "./src/IMS"
 import PropTypes from 'prop-types';
 export default function IBB(props) {
-    const ims = new IMS;
+    const [ims, setIms] = useState()
+    const [applicationInfo, setApplicationInfo] = useState()
     const [token, setToken] = useState()
     const [screen, setScreen] = useState({ action: false, state: {} })
     const [versionScreen, setVersionScreen] = useState(false)
@@ -10,28 +11,50 @@ export default function IBB(props) {
     //Açıklma
     useEffect(() => {
         const start = async () => {
-            //Dışardan girilen uygulama bilgilerini topluyor.
-            await ims.setSettings(props.config)
-            //Uygulama Modeli Oluşturuyor
-            await ims.setApplicationModel(props.application_uuid)
-            //Cihazı Kayıt Etmek için ilk
-            const token = await ims.init()
-            //Cihaz kaydı yapıldıktan sonra token oluşturuluyor
-            setToken(token)
+            setIms(await new IMS(props.config))
         }
         start()
     }, [])
+    useEffect(() => {
+        const ff = async () => {
+            if (typeof ims != "undefined") {
+                ims.getToken(props.application_uuid)
+                    .then(token => {
+                        (async () => {
+                            await ims.init(props.application_uuid, token).then(async (application_info) => {
+                                //Uygulama Tüm Bilgileri
+                                setApplicationInfo(application_info)
+                                await ims.setDevice(application_info,token)
+                                setToken(token)
+                            }).catch(err => {
+                                console.log("ERROR : ", err.message)
+                            })
+
+                        })()
+                    }).catch(error => console.log("message : ", error.message))
+            }
+        }
+        ff()
+    }, [ims])
 
     useEffect(() => {
         const check = async () => {
             if (typeof token == "undefined" || token == null) {
                 console.log("Token Alınamıyor..")
             } else {
-                //versiyon durumu kontrol ediliyor...
-                console.log("versiyon durumu kontrol ediliyor...")
-                const state = await ims.setState(props.application_uuid, token)
-                console.log("state", state)
-                setScreen({ action: state.action, state: state })
+                try {
+                    //versiyon durumu kontrol ediliyor...
+                    console.log("versiyon durumu kontrol ediliyor...")
+                    if (typeof applicationInfo != "undefined") {
+                        const state = await ims.setState(applicationInfo, token)
+                        console.log("state", state)
+                        setScreen({ action: state.action, state: state })
+                    } else {
+                        console.log("Uygulama Bilgilerine erişilemiyor.")
+                    }
+                } catch (error) {
+                    console.log("error", error)
+                }
             }
         }
         check()
@@ -40,7 +63,6 @@ export default function IBB(props) {
     const closeScreen = () => {
         setScreen({ action: false })
     }
-    //console.log("screen",screen)
     if (screen.action) {
         return ims.getComponent(screen.state, props.config, closeScreen)
     } else {

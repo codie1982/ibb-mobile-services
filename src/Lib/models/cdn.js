@@ -1,9 +1,18 @@
 import { Dimensions } from "react-native"
 import Settings from "../../Lib/models/Settings"
-export const combineURL = (url,config) => {
+export const combineURL = (url, config) => {
+    return new Promise((resolve, reject) => {
+        const settings = new Settings;
+        settings.setSettings(config).then(cdn => {
+            resolve(cdn.base_url + "/" + url)
+        })
+    })
+}
+export const combineURL_SENC = (url, config) => {
     const settings = new Settings;
     settings.setSettings(config).then(cdn => {
-        return cdn.base_url + "/" + url
+        console.log("cdn.base_url/url", cdn.base_url + "/" + url)
+        return (cdn.base_url + "/" + url)
     })
 
 }

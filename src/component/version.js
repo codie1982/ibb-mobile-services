@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Linking } from "react-native"
 import { View, Text, Platform, Button, StyleSheet, NativeEventEmitter, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableHighlight } from 'react-native'
 import { RNInfo } from "../Lib/module"
-import { combineURL, setStyle, Color, upperCase } from "../Lib/models/cdn"
+import { combineURL, setStyle, Color, upperCase, combineURL_SENC } from "../Lib/models/cdn"
 const CRITICAL = "critical"
 const LOW = "low"
 const IMPORTANT = "important"
 
-export default function Version({ detail, message, close,config }) {
+export default function Version({ detail, message, close, config }) {
     //console.log("Detail", detail)
     const [isLoading, setIsLoading] = useState(true)
     const [upgradeButton, setUpgradeButton] = useState("")
@@ -19,12 +19,21 @@ export default function Version({ detail, message, close,config }) {
     const [versionDescription, setVersionDescription] = useState(detail.info.version.version_description)
     const [applicationTilte, setApplicationTilte] = useState(detail.info.application.title)
     const [applicationLogo, setApplicationLogo] = useState(detail.info.application.logo)
+
+    /* bottom: {path: "static/images/bottom.png", width: 414, height: 69}
+    logo: {path: "static/images/logo.png", width: 46, height: 44}
+    main: {path: "static/images/image.png", width: 318, height: 310}
+    top:  */
+
+
     const [topImage, setTopImage] = useState(detail.images.top)
     const [bottomImage, setBottomImage] = useState(detail.images.bottom)
     const [mainImage, setMainImage] = useState(detail.images.main)
+    const [logo, setLogo] = useState(detail.images.logo)
+
     const [current_version, setCurrent_version] = useState(detail.version.number.current)
     const [publish_version, setPublish_version] = useState(detail.version.number.publish)
-    const [logo, setLogo] = useState(detail.images.logo)
+
     const eventEmitter = new NativeEventEmitter(RNInfo);
 
     useEffect(() => {
@@ -64,18 +73,31 @@ export default function Version({ detail, message, close,config }) {
 
 
     useEffect(() => {
-        console.log(combineURL(topImage.path,config))
-        setIsLoading(false)
-        if (detail.info.version.type == CRITICAL) {
-            updateNewVersion()
+        const ff = async () => {
+
+            console.log("detail", detail)
+            /* if (typeof detail != "undefined") {
+                setBackgroundImage(
+                    {
+                        height: detail.images.top.height,
+                        width: detail.images.top.width,
+                        path: imageUrl
+                    }
+                )
+            } */
+
+            setIsLoading(false)
+            if (detail.info.version.type == CRITICAL) {
+                updateNewVersion()
+            }
         }
+        ff()
     }, [detail])
 
     const updateNewVersion = async () => {
         if (Platform.OS === 'android') {
             if (location == "global") {
                 const supported = await Linking.canOpenURL(detail.info.version.url);
-                console.log("detail.info.version.url", detail.info.version.url)
                 if (supported) {
                     await Linking.openURL(detail.info.version.url);
                 } else {
@@ -112,12 +134,10 @@ export default function Version({ detail, message, close,config }) {
     return (
         <View style={styles.container}>
             <View style={styles.top_image} >
+                {console.log("topImage", topImage)}
                 <Image
                     style={setStyle(topImage.width, topImage.height, 100)}
-                    source={{
-                        uri:
-                            combineURL(topImage.path,config),
-                    }}
+                    source={{ uri: combineURL_SENC(topImage.path, config) }}
                 />
             </View>
             <View style={styles.subContainer} >
@@ -127,7 +147,7 @@ export default function Version({ detail, message, close,config }) {
                             style={setStyle(mainImage.width, mainImage.height, 80, true)}
                             source={{
                                 uri:
-                                    combineURL(mainImage.path,config),
+                                    combineURL_SENC(mainImage.path, config),
                             }}
                         /> : null}
 
@@ -141,8 +161,11 @@ export default function Version({ detail, message, close,config }) {
                             }}
                         />
                     </View>
+                    <View style={styles.version_alert} >
+                        <Text style={{ ...styles.version_alert_text, color: versionColor }}>{"Yeni Bir Güncelleme Var"}</Text>
+                    </View>
                     <View style={styles.application_title}>
-                        <Text style={styles.application_title_text_bolder}>{applicationTilte}</Text>
+                        <Text style={styles.application_title_text}>{applicationTilte}</Text>
                         <Text style={styles.application_title_text}>{" "}</Text>
                         <Text style={styles.application_title_text}>{"Uygulaması"}</Text>
                     </View>
@@ -151,7 +174,10 @@ export default function Version({ detail, message, close,config }) {
                         <Text style={styles.application_version_text}>{" ------> "}</Text>
                         <Text style={styles.application_version_text}>V {publish_version}</Text>
                     </View>
-                    <View style={styles.version_description} ><Text style={{ ...styles.version_description_text, color: versionColor }}>{versionDescription}</Text></View>
+                    <View style={styles.version_description} >
+                        <Text numberOfLines={4} style={{ ...styles.version_description_text, color: versionColor }}>{versionDescription}</Text>
+                    </View>
+
                     <View style={styles.button_section}>
                         <TouchableOpacity disabled={downloadState == "STATUS_RUNNING!" ? true : false} style={styles.button_continer} onPress={updateNewVersion} >
                             <View style={{ ...styles.uploadButtonBack, shadowColor: versionColor, borderColor: versionColor, backgroundColor: versionColor, opacity: 0.1 }} />
@@ -174,7 +200,7 @@ export default function Version({ detail, message, close,config }) {
                     style={setStyle(bottomImage.width, bottomImage.height, 100)}
                     source={{
                         uri:
-                            combineURL(bottomImage.path,config),
+                            combineURL_SENC(bottomImage.path, config),
                     }}
                 />
                 <View style={styles.bottom_logo}>
@@ -182,7 +208,7 @@ export default function Version({ detail, message, close,config }) {
                         style={setStyle(logo.width, logo.height, 12)}
                         source={{
                             uri:
-                                combineURL(logo.path,config),
+                                combineURL_SENC(logo.path, config),
                         }}
                     />
                 </View>
@@ -272,10 +298,22 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
+    version_alert: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        alignSelf: "center",
+        width: Dimensions.get("screen").width * 90 / 100,
+        padding: 10,
+    },
+    version_alert_text: {
+        textAlign: "center",
+        fontSize: 19,
+    },
     version_description: {
         flexDirection: "row",
         width: Dimensions.get("screen").width * 90 / 100,
-        padding: 20,
+        padding: 10,
     },
     version_description_text: {
         textAlign: "center",
@@ -287,8 +325,8 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         textAlign: "center",
         color: Color.textColor,
-        fontSize: 30,
-        lineHeight: 55,
+        fontSize: 20,
+        lineHeight: 35,
         fontWeight: "100",
     },
 
@@ -299,8 +337,8 @@ const styles = StyleSheet.create({
         textAlign: "center",
         color: Color.textColor,
         fontSize: 20,
+        lineHeight: 55,
         fontWeight: "900",
-        lineHeight: 55
     },
     button_section: {
         flexDirection: "row",
