@@ -9,15 +9,15 @@ import Request from "./Lib/http"
 export default class IMS {
     constructor(config) {
         (async () => {
-
+            const settings = new Settings();
+            this.settings = await settings.setSettings(config)
             this.token;
             this.applicationId;
             this.model = {}
             this.deviceModel = {}
             this.versionModel = {}
             this.newVersion = false
-            const settings = new Settings();
-            this.settings = await settings.setSettings(config)
+           //Soket Bağlantısı
             this.socket = io(`${this.settings.base_url}`);
         })()
     }
