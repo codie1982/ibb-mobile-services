@@ -27,11 +27,11 @@ export default function IBB(props) {
                                 setApplicationInfo(application_info)
                                 await ims.setDevice(application_info, token)
                                 setToken(token)
-                            }).catch(err => {
-                                console.log("ERROR : ", err.message)
+                            }).catch(error => {
+                                console.log("ERROR : ", error)
                             })
                         })()
-                    }).catch(error => console.log("message : ", error.message))
+                    }).catch(error => console.log("message : ", error))
             }
         }
         ff()

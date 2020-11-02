@@ -1,8 +1,8 @@
 {
   "_from": "ibb-mobile-services@^1.0.0",
-  "_id": "ibb-mobile-services@1.0.0",
+  "_id": "ibb-mobile-services@1.1.1",
   "_inBundle": false,
-  "_integrity": "sha512-RXC7GwpkK7BHZdlmSJ3JPhtKgCLzUAJpqzBcrPMVNOYlvT4Xcvj6UR+BOFMKXf+oICxqxZqfNM/JyNcE1xK+AA==",
+  "_integrity": "sha512-9+0WY6uCSHMb8EOxEFtuW0KzXFMQBmQ2MUcPKysFXI+XwJqFKdpOPf/pmJ+oQ1Nbj1IJwnJ3aLubaYdmZtEH+A==",
   "_location": "/ibb-mobile-services",
   "_phantomChildren": {},
   "_requested": {
@@ -19,10 +19,10 @@
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.0.0.tgz",
-  "_shasum": "4d45241d5568b6f26d78b74f8e7c787d933c92b2",
+  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.1.1.tgz",
+  "_shasum": "34b76d1d856533da1a8a71abc4c8cda083e7ca72",
   "_spec": "ibb-mobile-services@^1.0.0",
-  "_where": "/Users/enginerol/Documents/reactNative/yolbakim",
+  "_where": "/Users/enginerol/Documents/reactNative/ibb-yemek-menusu",
   "author": "",
   "bundleDependencies": false,
   "dependencies": {
@@ -43,5 +43,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.5"
+  "version": "1.1.2"
 }

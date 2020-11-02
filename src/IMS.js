@@ -60,7 +60,6 @@ export default class IMS {
     init(application_uuid) {
         return new Promise((resolve, reject) => {
             (async () => {
-
                 const model = new Model;
                 let initModel = await model.createInitModel(application_uuid)
                 this.socket.emit("active_connection", JSON.stringify(initModel))
@@ -68,7 +67,7 @@ export default class IMS {
                     if (application.success) {
                         resolve(application.info)
                     } else {
-                        reject({ message: application.message })
+                        reject(application)
                     }
                 })
             })()
