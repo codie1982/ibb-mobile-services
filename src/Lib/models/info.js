@@ -2,11 +2,13 @@
 import { RNInfo } from "../module"
 import { Platform } from "react-native"
 let deviceId;
+
+
 export async function getDeviceId() {
     if (Platform.OS === 'android' || Platform.OS === 'windows') {
-        deviceId = await RNInfo.getDeviceId();
+        deviceId = await RNInfo.getUniqueId();
     } else if (Platform.OS === 'ios') {
-        deviceId = await RNInfo.deviceId;
+        deviceId = await RNInfo.uniqueId;
     } else {
         deviceId = 'unknown';
     }

@@ -17,7 +17,7 @@ export default class IMS {
             this.deviceModel = {}
             this.versionModel = {}
             this.newVersion = false
-           //Soket Bağlantısı
+            //Soket Bağlantısı
             this.socket = io(`${this.settings.base_url}`);
         })()
     }
@@ -49,7 +49,7 @@ export default class IMS {
                 let initModel = await model.createInitModel(application_uuid)
                 const request = new Request;
                 let response = await request.send(this.settings.token_url, initModel)
-                resolve(response.token)
+                resolve({ token: response.token, model: initModel })
             })()
         })
     }

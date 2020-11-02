@@ -40,6 +40,7 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static android.provider.Settings.Secure.getString;
 
@@ -91,7 +92,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
         }
 
         final Map<String, Object> constants = new HashMap<>();
-
         constants.put("uniqueId", getUniqueIdSync());
         constants.put("deviceId", Build.BOARD);
         constants.put("bundleId", getReactApplicationContext().getPackageName());
@@ -117,7 +117,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     }
 
     @ReactMethod
-    public void getDeviceId(Promise promise) {
+    public void getUniqueId(Promise promise) {
         String android_id = Settings.Secure.getString(getReactApplicationContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
         promise.resolve(android_id);
@@ -143,12 +143,10 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
         int versionCode = packageInfo.versionCode;
         promise.resolve(versionCode);
     }
-
     @ReactMethod
     public void brand(Promise promise) {
         promise.resolve(Build.BRAND);
     }
-
     @ReactMethod
     public void getModel(Promise promise) {
         promise.resolve(Build.MODEL);
@@ -157,10 +155,8 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     public void getManufacturer(Promise promise) {
         promise.resolve(Build.MANUFACTURER);
     }
-
     @ReactMethod
     public void getDeviceName(Promise promise) {
-        System.out.println(Build.DEVICE);
         promise.resolve(Build.DEVICE);
     }
 
@@ -168,7 +164,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     public String getInstallerPackageNameSync() {
         String packageName = getReactApplicationContext().getPackageName();
         String installerPackageName = getReactApplicationContext().getPackageManager().getInstallerPackageName(packageName);
-
         if (installerPackageName == null) {
             return "unknown";
         }
@@ -179,6 +174,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     @ReactMethod
     public void uploadNewFile(String URL ,String filename, Promise promise) {
         System.out.println("URL : " + URL);
+
         if(ContextCompat.checkSelfPermission(
                 getCurrentActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -199,12 +195,8 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             startDownload(URL);
         }
     }
-    public void checkPermission(String[] permissions, int requestCode)
-    {
-        ActivityCompat.requestPermissions(
-                        getCurrentActivity(),
-                        permissions,
-                        requestCode);
+    public void checkPermission(String[] permissions, int requestCode){
+        ActivityCompat.requestPermissions(getCurrentActivity(),permissions,requestCode);
     }
 
 
@@ -280,7 +272,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             }).start();
         }
     }
-
     private String statusMessage(Cursor c) {
         String msg = "???";
 
@@ -328,8 +319,9 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
 
 
         public void setupApplication(Context context, Intent intent) {
+            String fileProviderName = getReactApplicationContext().getPackageName()+".ibb.provider";
             if (Build.VERSION.SDK_INT >= 22) {
-                Uri contentUri = FileProvider.getUriForFile(context, "$(applicationId).com.reactlibrary.provider",
+                Uri contentUri = FileProvider.getUriForFile(context, fileProviderName,
                         new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(),
                                 FILEPATH));
                 Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
@@ -351,7 +343,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             }
         }
     };
-
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         System.out.println("Izin Kabul Edildi" + requestCode);

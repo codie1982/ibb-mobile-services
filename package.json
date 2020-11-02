@@ -1,28 +1,28 @@
 {
-  "_from": "ibb-mobile-services@^1.0.0",
-  "_id": "ibb-mobile-services@1.1.1",
+  "_from": "ibb-mobile-services@^1.1.1",
+  "_id": "ibb-mobile-services@1.1.2",
   "_inBundle": false,
-  "_integrity": "sha512-9+0WY6uCSHMb8EOxEFtuW0KzXFMQBmQ2MUcPKysFXI+XwJqFKdpOPf/pmJ+oQ1Nbj1IJwnJ3aLubaYdmZtEH+A==",
+  "_integrity": "sha512-UWlnLI9zlSmmSePpsWjA449xnDhN8tKARW6O2XTwpSXj9yyZuvTcVH+FVEdJ5fMEYOP3fumxVq6o2YKcPYGCAQ==",
   "_location": "/ibb-mobile-services",
   "_phantomChildren": {},
   "_requested": {
     "type": "range",
     "registry": true,
-    "raw": "ibb-mobile-services@^1.0.0",
+    "raw": "ibb-mobile-services@^1.1.1",
     "name": "ibb-mobile-services",
     "escapedName": "ibb-mobile-services",
-    "rawSpec": "^1.0.0",
+    "rawSpec": "^1.1.1",
     "saveSpec": null,
-    "fetchSpec": "^1.0.0"
+    "fetchSpec": "^1.1.1"
   },
   "_requiredBy": [
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.1.1.tgz",
-  "_shasum": "34b76d1d856533da1a8a71abc4c8cda083e7ca72",
-  "_spec": "ibb-mobile-services@^1.0.0",
-  "_where": "/Users/enginerol/Documents/reactNative/ibb-yemek-menusu",
+  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.1.2.tgz",
+  "_shasum": "e160ee7023f67b56d635a69838d2d0a96cb19797",
+  "_spec": "ibb-mobile-services@^1.1.1",
+  "_where": "/Users/enginerol/Documents/reactNative/yolbakim",
   "author": "",
   "bundleDependencies": false,
   "dependencies": {
@@ -43,5 +43,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.1.2"
+  "version": "1.1.3"
 }
