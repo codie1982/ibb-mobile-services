@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import IMS from "./src/IMS"
 import PropTypes from 'prop-types';
+
 export default function IBB(props) {
     const [ims, setIms] = useState()
     const [applicationInfo, setApplicationInfo] = useState()
@@ -8,7 +9,7 @@ export default function IBB(props) {
     const [screen, setScreen] = useState({ action: false, state: {} })
     const [versionScreen, setVersionScreen] = useState(false)
     const [deviceState, setDeviceState] = useState()
-    //Açıklma
+    //Açıklamalar
     useEffect(() => {
         const start = async () => {
             setIms(await new IMS(props.config))
@@ -24,12 +25,11 @@ export default function IBB(props) {
                             await ims.init(props.application_uuid, token).then(async (application_info) => {
                                 //Uygulama Tüm Bilgileri
                                 setApplicationInfo(application_info)
-                                await ims.setDevice(application_info,token)
+                                await ims.setDevice(application_info, token)
                                 setToken(token)
                             }).catch(err => {
                                 console.log("ERROR : ", err.message)
                             })
-
                         })()
                     }).catch(error => console.log("message : ", error.message))
             }

@@ -9,6 +9,7 @@ import Request from "./Lib/http"
 export default class IMS {
     constructor(config) {
         (async () => {
+
             this.token;
             this.applicationId;
             this.model = {}
@@ -18,10 +19,24 @@ export default class IMS {
             const settings = new Settings();
             this.settings = await settings.setSettings(config)
             this.socket = io(`${this.settings.base_url}`);
-
         })()
     }
-
+    /**
+       * Servisden Token almak için
+       * @param {string} application_uuid 
+       */
+    getApplicationInfo() {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
+                const model = new Model;
+                let initModel = await model.createInitModel(application_uuid)
+                const request = new Request;
+                let response = await request.send(this.settings.token_url, initModel)
+                resolve(response.token)
+            })()
+        })
+    }
     /**
        * Servisden Token almak için
        * @param {string} application_uuid 
@@ -29,7 +44,6 @@ export default class IMS {
     getToken(application_uuid) {
         return new Promise((resolve, reject) => {
             (async () => {
-                console.log("application_uuid", application_uuid)
                 if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
                 const model = new Model;
                 let initModel = await model.createInitModel(application_uuid)
@@ -46,6 +60,7 @@ export default class IMS {
     init(application_uuid) {
         return new Promise((resolve, reject) => {
             (async () => {
+
                 const model = new Model;
                 let initModel = await model.createInitModel(application_uuid)
                 this.socket.emit("active_connection", JSON.stringify(initModel))
