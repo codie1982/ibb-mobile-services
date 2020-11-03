@@ -1,4 +1,4 @@
-import Info from "ibb-mobile-services/src/Lib/models/info"
+import Info from "./info"
 import { Platform } from "react-native"
 
 export default class Model {

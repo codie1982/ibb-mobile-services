@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Linking } from "react-native"
 import { View, Text, Platform, Button, StyleSheet, NativeEventEmitter, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableHighlight } from 'react-native'
-import { RNInfo } from "../Lib/module"
-import { combineURL, setStyle, Color, upperCase } from "../Lib/models/cdn"
+import { RNInfo } from "../library/module"
+import { combineURL, setStyle, Color, upperCase } from "../library/models/cdn"
 const CRITICAL = "critical"
 const LOW = "low"
 const IMPORTANT = "important"

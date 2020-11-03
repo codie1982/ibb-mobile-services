@@ -1,5 +1,5 @@
 import { Dimensions } from "react-native"
-import Settings from "../../Lib/models/settings"
+import Settings from "./settings"
 export const combineURL = (url, config) => {
     return new Promise((resolve, reject) => {
         const settings = new Settings;

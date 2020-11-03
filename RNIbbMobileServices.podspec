@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.description  = <<-DESC
                   RNIbbMobileServices
                    DESC
-  s.homepage     = "http://localhost"
+  s.homepage     = "https://github.com/codie1982/ibb-mobile-services.git"
   s.license      = "MIT"
   s.license     = { :type => "MIT", :file => "FILE_LICENSE" }
   s.author       = { "author" => "author@domain.cn" }
@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '9.0'
   s.tvos.deployment_target = '10.0'
 
-  s.source       = { :git => "https://github.com/author/RNIbbMobileServices.git", :tag => "master" }
+  s.source       = { :git => "https://github.com/codie1982/ibb-mobile-services", :tag => "master" }
   s.source_files  = "ios/**/*.{h,m}"
   s.requires_arc = true
 
