@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import IMS from "./src/IMS"
+import IMS from "./src/ims"
 import PropTypes from 'prop-types';
 
 export default function IBB(props) {
