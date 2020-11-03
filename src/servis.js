@@ -6,7 +6,8 @@ import io from 'socket.io-client';
 import Settings from "./library/models/settings"
 import Model from "./library/models/model"
 import Request from "./library/http"
-export default class IMS {
+export default class Servis {
+
     constructor(config) {
         (async () => {
             const settings = new Settings();

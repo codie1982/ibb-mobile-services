@@ -1,27 +1,28 @@
 import { useState, useEffect } from 'react'
-import IMS from "./src/ims"
+import Servis from "./src/servis"
 import PropTypes from 'prop-types';
 
 export default function IBB(props) {
     const [ims, setIms] = useState()
+    const [servis, setServis] = useState()
     const [applicationInfo, setApplicationInfo] = useState()
     const [token, setToken] = useState()
     const [screen, setScreen] = useState({ action: false, state: {} })
     //Açıklamalar
     useEffect(() => {
         const start = async () => {
-            setIms(await new IMS(props.config))
+            setServis(await new Servis(props.config))
         }
         start()
     }, [])
 
     useEffect(() => {
         const ff = async () => {
-            if (typeof ims != "undefined") {
-                ims.getToken(props.application_uuid)
+            if (typeof servis != "undefined") {
+                servis.getToken(props.application_uuid)
                     .then(result => {
                         (async () => {
-                            await ims.init(props.application_uuid, result.token).then(async (application_info) => {
+                            await servis.init(props.application_uuid, result.token).then(async (application_info) => {
                                 //Uygulama Tüm Bilgileri
                                 setApplicationInfo(application_info)
                                 setToken(result.token)
@@ -33,7 +34,7 @@ export default function IBB(props) {
             }
         }
         ff()
-    }, [ims])
+    }, [servis])
 
     useEffect(() => {
         const check = async () => {
@@ -44,7 +45,7 @@ export default function IBB(props) {
                     //versiyon durumu kontrol ediliyor...
                     console.log("versiyon durumu kontrol ediliyor...")
                     if (typeof applicationInfo != "undefined") {
-                        const state = await ims.setState(applicationInfo, token)
+                        const state = await servis.setState(applicationInfo, token)
                         console.log("state", state)
                         setScreen({ action: state.action, state: state })
                     } else {
@@ -62,7 +63,7 @@ export default function IBB(props) {
         setScreen({ action: false })
     }
     if (screen.action) {
-        return ims.getComponent(screen.state, props.config, closeScreen)
+        return servis.getComponent(screen.state, props.config, closeScreen)
     } else {
         return (
             props.children
