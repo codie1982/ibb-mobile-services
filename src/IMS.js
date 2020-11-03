@@ -3,7 +3,7 @@ import Version from "./component/version"
 import Test from "./component/test"
 import Error from "./component/error"
 import io from 'socket.io-client';
-import Settings from "./Lib/models/Settings"
+import Settings from "ibb-mobile-services/src/Lib/models/settings"
 import Model from "ibb-mobile-services/src/Lib/models/model"
 import Request from "./Lib/http"
 export default class IMS {

@@ -308,7 +308,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             if (LASTDOWNLOAD == id) {
                 setupApplication(context, intent);
@@ -317,13 +316,22 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             }
         }
 
-
         public void setupApplication(Context context, Intent intent) {
-            String fileProviderName = getReactApplicationContext().getPackageName()+".ibb.provider";
-            if (Build.VERSION.SDK_INT >= 22) {
-                Uri contentUri = FileProvider.getUriForFile(context, fileProviderName,
-                        new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(),
-                                FILEPATH));
+            if (Build.VERSION.SDK_INT >= 23) {
+                Uri uri = Uri.fromFile(new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(), FILEPATH));
+                Intent install = new Intent(Intent.ACTION_VIEW);
+                install.setDataAndType(uri, "application/vnd.android.package-archive");
+                context.startActivity(install);
+                context.unregisterReceiver(this);
+            }else {
+                if (Build.VERSION.SDK_INT >= 22) {
+             
+                } else {
+                  
+                }
+                Uri contentUri = FileProvider.getUriForFile(context, getReactApplicationContext().getPackageName()+".ibb.provider",
+                new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(),
+                        FILEPATH));
                 Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
                 install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -332,14 +340,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                 install.setDataAndType(contentUri, "application/vnd.android.package-archive");
                 context.startActivity(install);
                 context.unregisterReceiver(this);
-            } else {
-                if (Build.VERSION.SDK_INT >= 23) {
-                    Uri uri = Uri.fromFile(new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(), FILEPATH));
-                    Intent install = new Intent(Intent.ACTION_VIEW);
-                    install.setDataAndType(uri, "application/vnd.android.package-archive");
-                    context.startActivity(install);
-                    context.unregisterReceiver(this);
-                }
             }
         }
     };

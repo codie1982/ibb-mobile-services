@@ -1,11 +1,20 @@
+//
+//  RNIbbMobileServices.h
+//  Learnium
+//
+//  Created by Rebecca Hughes on 03/08/2015.
+//  Copyright © 2015 Learnium Limited. All rights reserved.
+//
 
-#if __has_include("RCTBridgeModule.h")
-#import "RCTBridgeModule.h"
-#else
+#import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
+#import <sys/utsname.h>
 #import <React/RCTBridgeModule.h>
-#endif
+#import <React/RCTEventEmitter.h>
+#import <React/RCTLog.h>
 
-@interface RNIbbMobileServices : NSObject <RCTBridgeModule>
+@interface RNIbbMobileServices : RCTEventEmitter <RCTBridgeModule>
+
+@property (nonatomic) float lowBatteryThreshold;
 
 @end
-  

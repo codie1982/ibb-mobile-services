@@ -22,9 +22,9 @@ export default class Settings {
     MAINPORT
     setSettings = (config) => {
         return new Promise((resolve, reject) => {
-            this.ENDPOINT = config.endpoint;
+            this.URL = config.url;
             this.MAINPORT = config.port;
-            this.baseurl = `${this.ENDPOINT}${this.TOPOINT}${this.MAINPORT}`;
+            this.baseurl = `${this.URL}${this.TOPOINT}${this.MAINPORT}`;
             this.APIURL = `${this.baseurl}${this.SLAH}${this.API}${this.SLAH}${this.MOBILE}`;
             this.seturl = `${this.APIURL}${this.SLAH}${this.VER}/set`;
             this.tokenurl = `${this.APIURL}${this.SLAH}${this.VER}/token`;
