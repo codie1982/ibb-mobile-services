@@ -15,6 +15,7 @@ Bu modul ile uygulamanızın versiyon kontrolünü kolaylıkla sağlayabilirsini
 
 `$ react-native link ibb-mobile-services`
 
+
 ### Elle Kurulum
 ## RN < 0.60 => Elle Kurulum yapılır.
 
