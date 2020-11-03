@@ -1,7 +1,7 @@
 
 # ibb-mobile-services
 
-## STATER
+## BAŞLARKEN
 
 #### Kullanım Amacı
 İstanbul Büyük Şehir Belediyesi üzerinde kurulu mobil uygulamaların IBB Mobil Global servis üzerine erişmesine olanak sağlayan NPM Modulu
@@ -10,12 +10,13 @@ Bu modul ile uygulamanızın versiyon kontrolünü kolaylıkla sağlayabilirsini
 
 `$ npm install ibb-mobile-services --save`
 
-### Mostly automatic installation
+### Otomatik Kurulum
+## RN > 0.60 => Otomatik kulurum yapılır
 
 `$ react-native link ibb-mobile-services`
 
-### Manual installation
-
+### Elle Kurulum
+## RN < 0.60 => Elle Kurulum yapılır.
 
 #### iOS
 
@@ -38,16 +39,6 @@ Bu modul ile uygulamanızın versiyon kontrolünü kolaylıkla sağlayabilirsini
   	```
       compile project(':ibb-mobile-services')
   	```
-
-#### Windows
-[Read it! :D](https://github.com/ReactWindows/react-native)
-
-1. In Visual Studio add the `RNIbbMobileServices.sln` in `node_modules/ibb-mobile-services/windows/RNIbbMobileServices.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-  - Add `using Ibb.Mobile.Services.RNIbbMobileServices;` to the usings at the top of the file
-  - Add `new RNIbbMobileServicesPackage()` to the `List<IReactPackage>` returned by the `Packages` method
-
-
 
 
 ## Kullanım Şekli
