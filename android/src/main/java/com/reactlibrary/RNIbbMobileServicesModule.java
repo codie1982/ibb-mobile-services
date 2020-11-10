@@ -195,13 +195,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             startDownload(URL);
         }
     }
-    public void checkPermission(String[] permissions, int requestCode){
-        ActivityCompat.requestPermissions(getCurrentActivity(),permissions,requestCode);
-    }
-
-
-
-
     public void startDownload(String URL) {
         System.out.println("System Version : " + Build.VERSION.SDK_INT);
         if (Build.VERSION.SDK_INT >= 24) {
@@ -258,7 +251,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                             @Override
                             public void run() {
                                 System.out.println("progress : " + (int) dl_progress);
-                               // pgsApplicationDownloading.setProgress((int) dl_progress);
+                                // pgsApplicationDownloading.setProgress((int) dl_progress);
                             }
                         });
                         getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
@@ -272,9 +265,12 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             }).start();
         }
     }
+
+    public void checkPermission(String[] permissions, int requestCode){
+        ActivityCompat.requestPermissions(getCurrentActivity(),permissions,requestCode);
+    }
     private String statusMessage(Cursor c) {
         String msg = "???";
-
         switch (c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
             case DownloadManager.STATUS_FAILED:
                 //pgsApplicationDownloading.setIndeterminate(true);
@@ -312,23 +308,17 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             if (LASTDOWNLOAD == id) {
                 setupApplication(context, intent);
                 System.out.println("İndirme Tamamlandı");
-                Toast.makeText(context, "INDIRME TAMAMLANDI", Toast.LENGTH_SHORT).show();
             }
         }
 
         public void setupApplication(Context context, Intent intent) {
-            if (Build.VERSION.SDK_INT >= 23) {
+            if (Build.VERSION.SDK_INT <= 23) {
                 Uri uri = Uri.fromFile(new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(), FILEPATH));
                 Intent install = new Intent(Intent.ACTION_VIEW);
                 install.setDataAndType(uri, "application/vnd.android.package-archive");
                 context.startActivity(install);
                 context.unregisterReceiver(this);
             }else {
-                if (Build.VERSION.SDK_INT >= 22) {
-             
-                } else {
-                  
-                }
                 Uri contentUri = FileProvider.getUriForFile(context, getReactApplicationContext().getPackageName()+".ibb.provider",
                 new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(),
                         FILEPATH));
@@ -343,6 +333,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             }
         }
     };
+
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         System.out.println("Izin Kabul Edildi" + requestCode);

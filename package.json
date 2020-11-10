@@ -1,8 +1,8 @@
 {
   "_from": "ibb-mobile-services@^1.1.3",
-  "_id": "ibb-mobile-services@1.1.3",
+  "_id": "ibb-mobile-services@1.1.10",
   "_inBundle": false,
-  "_integrity": "sha512-L0o4YuK4FSJDKvZ/LXu6ksACoyiBB3yzRqWUzgcVhDI5J0hifpieKHuJIPN236O71P0an4CdZh6w0NEK/ATYHA==",
+  "_integrity": "sha512-C8x5VGUhnp1Awt+vJliA6+yRGfn5hFLZMwz/ppkWOuea2ZhGKvy5VWaKLIz3uBk0mE9JJ6DI/r2tY2Mceve2BQ==",
   "_location": "/ibb-mobile-services",
   "_phantomChildren": {},
   "_requested": {
@@ -19,8 +19,8 @@
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.1.3.tgz",
-  "_shasum": "bb059581f1b6d4292ae9fa67054cc1a2d91df139",
+  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.1.10.tgz",
+  "_shasum": "0f145fd468a1df98a018fd8010982b6756c898d1",
   "_spec": "ibb-mobile-services@^1.1.3",
   "_where": "/Users/enginerol/Documents/reactNative/yolbakim",
   "author": "",
@@ -30,13 +30,13 @@
   },
   "deprecated": false,
   "description": "## Getting started",
+  "homepage": "https://github.com/codie1982/ibb-mobile-services",
   "keywords": [
     "react-native"
   ],
   "license": "",
   "main": "index.js",
   "name": "ibb-mobile-services",
-  "homepage":"https://github.com/codie1982/ibb-mobile-services",
   "peerDependencies": {
     "react-native": "^0.41.2",
     "react-native-windows": "0.41.0-rc.1"
