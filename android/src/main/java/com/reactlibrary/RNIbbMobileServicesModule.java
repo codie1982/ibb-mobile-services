@@ -230,7 +230,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                         q.setFilterById(LASTDOWNLOAD);
                         final Cursor cursor = downloadManager.query(q);
                         cursor.moveToFirst();
-
                         double bytes_downloaded = cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                         double bytes_total = cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
                         if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {

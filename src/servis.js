@@ -144,7 +144,7 @@ export default class Servis {
         } else {
             switch (state.component) {
                 case "new_version":
-                    return <Version detail={state.version} message={state.message} close={closeCallback} config={config} />
+                    return <Version baseurl={this.settings.base_url} detail={state.version} message={state.message} close={closeCallback} config={config} />
                 case "test_version":
                     return <Test detail={state.version} message={state.message} close={closeCallback} config={config} />
                 case "no_version":

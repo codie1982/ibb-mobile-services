@@ -1,27 +1,27 @@
 {
-  "_from": "ibb-mobile-services@^1.1.3",
-  "_id": "ibb-mobile-services@1.1.10",
+  "_from": "ibb-mobile-services@^1.1.10",
+  "_id": "ibb-mobile-services@1.2.1",
   "_inBundle": false,
-  "_integrity": "sha512-C8x5VGUhnp1Awt+vJliA6+yRGfn5hFLZMwz/ppkWOuea2ZhGKvy5VWaKLIz3uBk0mE9JJ6DI/r2tY2Mceve2BQ==",
+  "_integrity": "sha512-axcE1hChwTruiQlnE88iXFH7IykfMwb3dzHE+dgDVaxSFfmTn0W/vNcJyEDtGpgU78fACu4NlOZ7BXsU97SgLw==",
   "_location": "/ibb-mobile-services",
   "_phantomChildren": {},
   "_requested": {
     "type": "range",
     "registry": true,
-    "raw": "ibb-mobile-services@^1.1.3",
+    "raw": "ibb-mobile-services@^1.1.10",
     "name": "ibb-mobile-services",
     "escapedName": "ibb-mobile-services",
-    "rawSpec": "^1.1.3",
+    "rawSpec": "^1.1.10",
     "saveSpec": null,
-    "fetchSpec": "^1.1.3"
+    "fetchSpec": "^1.1.10"
   },
   "_requiredBy": [
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.1.10.tgz",
-  "_shasum": "0f145fd468a1df98a018fd8010982b6756c898d1",
-  "_spec": "ibb-mobile-services@^1.1.3",
+  "_resolved": "https://registry.npmjs.org/ibb-mobile-services/-/ibb-mobile-services-1.2.1.tgz",
+  "_shasum": "37a13bb026cb516372a766304e85b3689adf0ad7",
+  "_spec": "ibb-mobile-services@^1.1.10",
   "_where": "/Users/enginerol/Documents/reactNative/yolbakim",
   "author": "",
   "bundleDependencies": false,

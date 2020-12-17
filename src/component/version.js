@@ -7,7 +7,7 @@ const CRITICAL = "critical"
 const LOW = "low"
 const IMPORTANT = "important"
 
-export default function Version({ detail, message, close, config }) {
+export default function Version({ baseurl, detail, message, close, config }) {
     //console.log("Detail", detail)
     const [isLoading, setIsLoading] = useState(true)
     const [upgradeButton, setUpgradeButton] = useState("")
@@ -107,15 +107,25 @@ export default function Version({ detail, message, close, config }) {
                 if (downloadState != "STATUS_RUNNING!")
                     await RNInfo.uploadNewFile(detail.info.version.file, detail.info.version.filename)
             }
-        } else if (Platform.OS == "ios") {
-            //TODO local servis üzerinden yükleme yapmıyor olabilir global bir servis üzerinden indirme yapılıyor daha sonra tekrardan bakmam gerekecek.
-            //console.log("Yüklemeye Başla", detail.info.version.url)
-            const supported = await Linking.canOpenURL(detail.info.version.url);
-            if (supported) {
-                await Linking.openURL(detail.info.version.url);
+        } else if (Platform.OS === "ios") {
+            if (location == "global") {
+                const supported = await Linking.canOpenURL(detail.info.version.globalurl);
+                if (supported) {
+                    await Linking.openURL(detail.info.version.globalurl);
+                } else {
+                    Alert.alert(`Belirtilen Linke Ulaşılamıyor: ${detail.info.version.globalurl}`);
+                }
             } else {
-                Alert.alert(`Belirtilen İndir Ulaşılamıyor: ${detail.info.version.url}`);
+                const itmsServices = `itms-services://?action=download-manifest&url=${baseurl}${detail.info.version.itmsservices}`
+                //TODO local servis üzerinden yükleme yapmıyor olabilir global bir servis üzerinden indirme yapılıyor daha sonra tekrardan bakmam gerekecek.
+                const supported = await Linking.canOpenURL(itmsServices);
+                if (supported) {
+                    await Linking.openURL(itmsServices);
+                } else {
+                    Alert.alert(`Belirtilen İndir Ulaşılamıyor: ${itmsServices}`);
+                }
             }
+
         }
     }
 
