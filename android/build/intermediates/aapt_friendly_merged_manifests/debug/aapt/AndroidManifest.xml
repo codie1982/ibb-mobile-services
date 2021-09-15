@@ -24,7 +24,7 @@
         android:usesCleartextTraffic="true" >
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="dollar_openBracket_applicationId_closeBracket.ibb.provider"
+            android:authorities="dollar_openBracket_applicationId_closeBracket.eng.provider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data

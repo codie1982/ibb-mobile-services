@@ -1,69 +1,71 @@
 import { useState, useEffect } from 'react'
 import Servis from "./src/servis"
+import Model from "./src/library/models/model"
 import PropTypes from 'prop-types';
 
 export default function IBB(props) {
     const [ims, setIms] = useState()
-    const [servis, setServis] = useState()
+    const [servis, setNServis] = useState()
     const [applicationInfo, setApplicationInfo] = useState()
     const [token, setToken] = useState()
     const [screen, setScreen] = useState({ action: false, state: {} })
     //Açıklamalar
     useEffect(() => {
-        const start = async () => {
-            setServis(await new Servis(props.config))
-        }
-        start()
+        //TODO : bu paketin doğruluğu kontrol edilmeli
+        props.config.packages.NetInfo.addEventListener(state => {
+            (async () => {
+                const _servis = new Servis()
+                await _servis.setServis(props.config, props.application_uuid, state)
+                setNServis(_servis)
+            })()
+        });
     }, [])
 
     useEffect(() => {
-        const ff = async () => {
+        (async () => {
             if (typeof servis != "undefined") {
                 servis.getToken(props.application_uuid)
                     .then(result => {
                         (async () => {
-                            await servis.init(props.application_uuid, result.token).then(async (application_info) => {
-                                //Uygulama Tüm Bilgileri
-                                setApplicationInfo(application_info)
-                                setToken(result.token)
-                            }).catch(error => {
-                                console.log("ERROR : ", error)
-                            })
-                        })()
-                    }).catch(error => console.log("message : ", error))
-            }
-        }
-        ff()
-    }, [servis])
+                            servis
+                                .initialization(props.application_uuid, result.accessToken, result.isDeviceRegister)
+                                .then((state) => {
+                                    console.log("state", state)
+                                    //Uygulama Tüm Bilgileri
+                                    //Kullanıcı Bilgileri
+                                    //Versiyon Bilgileri
+                                    setApplicationInfo(state.application_info)
+                                    setToken(result.accessToken)
 
-    useEffect(() => {
-        const check = async () => {
-            if (typeof token == "undefined" || token == null) {
-                console.log("Token Alınamıyor..")
-            } else {
-                try {
-                    //versiyon durumu kontrol ediliyor...
-                    console.log("versiyon durumu kontrol ediliyor...")
-                    if (typeof applicationInfo != "undefined") {
-                        const state = await servis.setState(applicationInfo, token)
-                        console.log("state", state)
-                        setScreen({ action: state.action, state: state })
-                    } else {
-                        console.log("Uygulama Bilgilerine erişilemiyor.")
-                    }
-                } catch (error) {
-                    console.log("error", error)
-                }
+                                    setScreen({
+                                        action: state.version_info.action,
+                                        component: state.version_info.component,
+                                        type: state.version_info.type,
+                                        publish_version: state.version_info.version,
+                                        message: state.version_info.message,
+                                        application: {
+                                            application: state.application_info.application,
+                                            package: state.application_info.package,
+                                            current_version: state.application_info.current_version,
+                                        }
+                                    })
+                                }).catch(error => {
+                                    console.log("ERROR : ", error)
+                                })
+                        })()
+                    }).catch(error => {
+                        console.log("message : ", error)
+                        console.error("Token Oluturulamıyor")
+                    })
             }
-        }
-        check()
-    }, [token])
+        })()
+    }, [servis])
 
     const closeScreen = () => {
         setScreen({ action: false })
     }
     if (screen.action) {
-        return servis.getComponent(screen.state, props.config, closeScreen)
+        return servis.getComponent(screen.component, screen.type, screen.publish_version, screen.message, screen.application, token, closeScreen)
     } else {
         return (
             props.children

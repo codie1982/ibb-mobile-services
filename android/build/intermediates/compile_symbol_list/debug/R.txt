@@ -853,9 +853,9 @@ int string catalyst_debug_chrome 0x0
 int string catalyst_debug_chrome_stop 0x0
 int string catalyst_debug_connecting 0x0
 int string catalyst_debug_error 0x0
-int string catalyst_debug_nuclide 0x0
-int string catalyst_debug_nuclide_error 0x0
+int string catalyst_debug_open 0x0
 int string catalyst_debug_stop 0x0
+int string catalyst_devtools_open 0x0
 int string catalyst_dismiss_button 0x0
 int string catalyst_heap_capture 0x0
 int string catalyst_hot_reloading 0x0
@@ -864,6 +864,7 @@ int string catalyst_hot_reloading_auto_enable 0x0
 int string catalyst_hot_reloading_stop 0x0
 int string catalyst_inspector 0x0
 int string catalyst_loading_from_url 0x0
+int string catalyst_open_flipper_error 0x0
 int string catalyst_perf_monitor 0x0
 int string catalyst_perf_monitor_stop 0x0
 int string catalyst_reload 0x0
@@ -1064,8 +1065,6 @@ int style Base_Widget_AppCompat_Toolbar 0x0
 int style Base_Widget_AppCompat_Toolbar_Button_Navigation 0x0
 int style CalendarDatePickerDialog 0x0
 int style CalendarDatePickerStyle 0x0
-int style ClockTimePickerDialog 0x0
-int style ClockTimePickerStyle 0x0
 int style DialogAnimationFade 0x0
 int style DialogAnimationSlide 0x0
 int style Platform_AppCompat 0x0
@@ -1097,8 +1096,6 @@ int style RtlUnderlay_Widget_AppCompat_ActionButton 0x0
 int style RtlUnderlay_Widget_AppCompat_ActionButton_Overflow 0x0
 int style SpinnerDatePickerDialog 0x0
 int style SpinnerDatePickerStyle 0x0
-int style SpinnerTimePickerDialog 0x0
-int style SpinnerTimePickerStyle 0x0
 int style TextAppearance_AppCompat 0x0
 int style TextAppearance_AppCompat_Body1 0x0
 int style TextAppearance_AppCompat_Body2 0x0

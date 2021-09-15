@@ -1,1 +1,1 @@
-export * from "./device_module"
+export * from "ibb-mobile-services/src/library/module/RNIbbMobileServices"

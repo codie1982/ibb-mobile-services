@@ -1,144 +1,100 @@
-import Info from "./info"
-import { Platform } from "react-native"
 
+import { Platform } from "react-native"
 export default class Model {
-    constructor() {
+    reactNativeDeviceInfo
+    constructor(reactNativeDeviceInfo) {
+        this.reactNativeDeviceInfo = reactNativeDeviceInfo;//react native device info paketi
         return true;
     }
-    async createInitModel(application_uuid) {
-        let model = await Info.getModel()
-        let device_id = await Info.getDeviceId()
-        let package_name = await Info.getBundleId()
-        let version_number = await Info.getVersionCode()
-        let platform = Platform.OS
-        let sdkVersion = Platform.Version
-        let brand = await Info.getBrand()
-        let deviceName = await Info.getDeviceName()
-        let manufacturer = await Info.getManufacturer()
 
+    setTokenModel = async (application_uuid) => {
+        let device = {}
+        //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
+        device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
+        device.package_name = await this.reactNativeDeviceInfo.getBundleId()
         return {
-            application_uuid,
-            model, device_id,
-            package_name,
-            version_number,
-            platform,
-            sdkVersion,
-            brand,
-            manufacturer,
-            deviceName
+            deviceid: device.device_id,
+            package_name: device.package_name,
+            application_uuid: application_uuid,
+            platform: Platform.OS
         }
+    }
+    getDeviceID = async () => {
+        return await this.reactNativeDeviceInfo.getUniqueId();
+    }
+    getPackageName = async () => {
+        return await this.reactNativeDeviceInfo.getBundleId();
+    }
+    getVersionNumner = async () => {
+        return await this.reactNativeDeviceInfo.getBuildNumber()
 
-        /*  let location = ""
-         let platform = ""
-         let currenVversion = ""
-         let getBatteryLevel = ""
-         let getIpAddress = ""
-         let getMacAddress = ""
-         let isBatteryCharging = ""
-         let isHeadphonesConnected = ""
-         let isLocationEnabled = ""
-         let isTablet = ""
-         let useBatteryLevel = ""
-         let usePowerState = ""
-         let networkState = "" */
     }
-    async  createDeviceModel() {
-        let device_id = await Info.getDeviceId()
-        //let package_name = await Info.getBundleId()
-        let brand = await Info.getBrand()
-        let model = await Info.getModel()
-        let deviceName = await Info.getDeviceName()
-        let manufacturer = await Info.getManufacturer()
-        //const state = await NetInfo.fetch()
-        return { device_id, brand, model, deviceName, manufacturer }
-        /* let device_id = ""
-        let package_name = ""
-        let getApiLevel = ""
-        let getBaseOs = ""
-        let getBrand = ""
-        let getBuildId = ""
-        let getBuildNumber = ""
-        let getDevice = ""
-        let getDeviceName = ""
-        let getFontScale = ""
-        let getFreeDiskStorage = ""
-        let getIncremental = ""
-        let getHardware = ""
-        let getInstallerPackageName = ""
-        let getManufacturer = ""
-        let getMaxMemory = ""
-        let getPhoneNumber = ""
-        let getProduct = ""
-        let getSerialNumber = ""
-        let getModel = ""
-        let location = ""
-        let platform = ""
-        let currenVversion = ""
-        let getSystemName = ""
-        let getSystemVersion = ""
-        let getTags = ""
-        let getTotalDiskCapacity = ""
-        let getTotalMemory = ""
-        let getType = ""
-        let getUsedMemory = ""
-        let useDeviceName = ""
-        let isLandscape = "" */
+    setRegisterModel = async () => {
+        let device = {}
+        //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
+        device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
+        device.version_number = await this.reactNativeDeviceInfo.getBuildNumber()
+        device.package_name = await this.reactNativeDeviceInfo.getBundleId()
+        device.getApplicationName = await this.reactNativeDeviceInfo.getApplicationName();
+        device.getBuildId = await this.reactNativeDeviceInfo.getBuildId();
+        device.getBrand = await this.reactNativeDeviceInfo.getBrand();
+        device.getCarrier = await this.reactNativeDeviceInfo.getCarrier()
+        device.getDeviceId = await this.reactNativeDeviceInfo.getDeviceId()
+        device.getDeviceName = await this.reactNativeDeviceInfo.getDeviceName()
+        device.getFontScale = await this.reactNativeDeviceInfo.getFontScale()
+        device.getFreeDiskStorage = await this.reactNativeDeviceInfo.getFreeDiskStorage()
+        device.getFreeDiskStorageOld = await this.reactNativeDeviceInfo.getFreeDiskStorageOld()
+        device.getMacAddress = await this.reactNativeDeviceInfo.getMacAddress()
+        device.getManufacturer = await this.reactNativeDeviceInfo.getManufacturer()
+        device.getModel = await this.reactNativeDeviceInfo.getModel()
+        device.getPowerState = await this.reactNativeDeviceInfo.getPowerState()
+        device.getReadableVersion = await this.reactNativeDeviceInfo.getReadableVersion()
+        device.getSystemName = await this.reactNativeDeviceInfo.getSystemName()
+        device.getSystemVersion = await this.reactNativeDeviceInfo.getSystemVersion()
+        device.getTotalDiskCapacity = await this.reactNativeDeviceInfo.getTotalDiskCapacity()
+        device.getTotalDiskCapacityOld = await this.reactNativeDeviceInfo.getTotalDiskCapacityOld()
+        device.getTotalMemory = await this.reactNativeDeviceInfo.getTotalMemory()
+        device.getUsedMemory = await this.reactNativeDeviceInfo.getUsedMemory()
+        device.getUserAgent = await this.reactNativeDeviceInfo.getUserAgent()
+        device.hasNotch = await this.reactNativeDeviceInfo.hasNotch()
+        device.isEmulator = await this.reactNativeDeviceInfo.isEmulator()
+        device.isLandscape = await this.reactNativeDeviceInfo.isLandscape()
+        device.isPinOrFingerprintSet = await this.reactNativeDeviceInfo.isPinOrFingerprintSet()
+        device.isTablet = await this.reactNativeDeviceInfo.isTablet()
+        device.supportedAbis = await this.reactNativeDeviceInfo.supportedAbis()
+        device.platform = Platform.OS
+        return device
     }
-    async  createVersionModel(application_info) {
-        console.log("application_info", application_info)
 
-        let device_id = await Info.getDeviceId()
-        let package_name = await Info.getBundleId()
-        let current_version_number = await Info.getVersionCode()
-        let brand = await Info.getBrand()
-        let model = await Info.getModel()
-        let deviceName = await Info.getDeviceName()
-        let manufacturer = await Info.getManufacturer()
-        //const state = await NetInfo.fetch()
-        return {
-            application_uuid: application_info.application.application_uuid,
-            package_name: application_info.application_package.package_name,
-            package_uuid: application_info.application_package.package_uuid,
-            current_version_uuid: application_info.current_version.version_uuid,
-            current_version_number,
-            device_id,
-            brand,
-            model,
-            manufacturer,
-            deviceName,
-            max_count: application_info.current_version.max_count
-        }
-        /* let deviceId = ""
-        let package_name = ""
-        let getApiLevel = ""
-        let getBaseOs = ""
-        let getBrand = ""
-        let getBuildId = ""
-        let getBuildNumber = ""
-        let getDevice = ""
-        let getDeviceName = ""
-        let getFontScale = ""
-        let getFreeDiskStorage = ""
-        let getIncremental = ""
-        let getHardware = ""
-        let getInstallerPackageName = ""
-        let getManufacturer = ""
-        let getMaxMemory = ""
-        let getPhoneNumber = ""
-        let getProduct = ""
-        let getSerialNumber = ""
-        let getModel = ""
-        let location = ""
-        let platform = ""
-        let currenVversion = ""
-        let getSystemName = ""
-        let getSystemVersion = ""
-        let getTags = ""
-        let getTotalDiskCapacity = ""
-        let getTotalMemory = ""
-        let getType = ""
-        let getUsedMemory = ""
-        let useDeviceName = ""
-        let isLandscape = "" */
+    setVersionModel = async () => {
+        let device = {}
+        //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
+        /*         
+        package_uuid: req.body.package_uuid, //sonradan ekle
+        current_version_uuid: req.body.current_version_uuid, //sonradan ekle
+        application_uuid: req.body.application_uuid,
+        */
+
+        device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
+        device.current_version_number = await this.reactNativeDeviceInfo.getBuildNumber()
+        device.package_name = await this.reactNativeDeviceInfo.getBundleId()
+        device.platform = Platform.OS
+        device.getBrand = await this.reactNativeDeviceInfo.getBrand();
+        device.getManufacturer = await this.reactNativeDeviceInfo.getManufacturer()
+        device.getModel = await this.reactNativeDeviceInfo.getModel()
+        device.getDeviceName = await this.reactNativeDeviceInfo.getDeviceName()
+        return device
     }
+    setConnectionModel = async (application_uuid) => {
+        let device = {}
+        //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
+        device.application_uuid = application_uuid;
+        device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
+        device.getModel = await this.reactNativeDeviceInfo.getModel()
+        device.version_number = await this.reactNativeDeviceInfo.getBuildNumber()
+        device.package_name = await this.reactNativeDeviceInfo.getBundleId()
+        device.platform = Platform.OS
+        return device
+    }
+
 }
