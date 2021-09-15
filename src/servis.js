@@ -11,6 +11,12 @@ export default class Servis {
         this.settings;
     }
 
+    /**
+     * Servis ve ayarlar 
+     * @param {*} config 
+     * @param {*} application_uuid 
+     * @param {*} netState 
+     */
     setServis = async (config, application_uuid, netState) => {
         const settings = new Settings()
         this.settings = await settings.setSettings(config, application_uuid, netState)
@@ -30,7 +36,7 @@ export default class Servis {
         })
     }
     /**
-     * Uygulama Socket bağlantısı gerçekleşiyor.
+     * uygulama ilk bağlantı kontrolü
      * @param {string} application_uuid 
      */
     initialization(application_uuid, token, register) {
@@ -57,56 +63,17 @@ export default class Servis {
             })()
         })
     }
-    /**
-       * Uygulama bilgilerini girmek
-       * @param {string} application_uuid 
-       */
-    getApplicationInfo() {
-        return new Promise((resolve, reject) => {
-            (async () => {
-
-                if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
-                const model = new Model;
-                let initModel = await model.createInitModel(application_uuid)
-                const request = new Request;
-                let response = await request.send(this.settings.token_url, initModel)
-                resolve(response.token)
-            })()
-        })
-    }
-
-
 
     /**
-    * Cihazı Kayıt Etmek için
-    */
-    setDevice(token) {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                const model = new Model;
-                let deviceModel = await model.createDeviceModel()
-                const request = new Request;
-                await request.send(this.settings.init_url, deviceModel, token)
-                resolve(true)
-            })()
-        })
-    }
-
-
-    async setState(application_info, token) {
-        /*   const versionModel = await this.setVersionModel(application_info)
-          //console.log("versionModel",versionModel)
-          if (typeof this.settings.version_url != "undefined") {
-              const request = new Request;
-              const data = await request.send(this.settings.version_url, versionModel, token).catch(err => {
-                  console.log("ERROR State", err)
-              })
-              if (typeof data.result != "undefined")
-                  return data.result
-          } */
-        return false
-    }
-    //screen.component, screen.type, screen.detail, screen.message, screen.application, token, closeScreen
+     * Servisden gelen cevaplara göre ilgili componentleri açıyor.
+     * @param {*} component 
+     * @param {*} type 
+     * @param {*} publish_version 
+     * @param {*} message 
+     * @param {*} application 
+     * @param {*} token 
+     * @param {*} closeCallback 
+     */
     getComponent(component, type, publish_version, message, application, token, closeCallback) {
         if (type == "error") {
             return <Error component={state.component} message={message} />

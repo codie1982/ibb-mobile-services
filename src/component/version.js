@@ -20,7 +20,7 @@ const STATUS_RUNNING = 2
 const STATUS_SUCCESSFUL = 8
 
 
-const REPSTATE = {
+const REPRESENTATIONSTATE = {
     install: "install",
     download: "download",
     fail: "fail",
@@ -46,16 +46,14 @@ export default function Version({ baseurl, publish_version, message, application
     const [applicationname, setApplicationname] = useState(Util.setName(publish_version.info.name))
     //Yayınlanma Yeri
     const [publish_location, setPublish_location] = useState(publish_version.info.version.location)
-    /* bottom: {path: "static/images/bottom.png", width: 414, height: 69}
-    logo: {path: "static/images/logo.png", width: 46, height: 44}
-    main: {path: "static/images/image.png", width: 318, height: 310}
-    top:  */
 
-
-
+    //Üst Resim
     const [topImage, setTopImage] = useState(publish_version.images.top)
+    //Alt Resim
     const [bottomImage, setBottomImage] = useState(publish_version.images.bottom)
+    //Orta Resim
     const [mainImage, setMainImage] = useState(publish_version.images.main)
+    //IBB Logo
     const [logo, setLogo] = useState(publish_version.images.logo)
 
     const [current_version_number, setCurrent_version_number] = useState(publish_version.version.number.current)
@@ -98,7 +96,6 @@ export default function Version({ baseurl, publish_version, message, application
             setFileSize(publish_version.info.version.filesize.size)
             setRepresenteID(Util.encodeRepresentionid(application.application.application_uuid, settings.device.device_id, publish_version.version.number.publish))
         }
-
         return () => {
             if (Platform.OS === 'android') {
                 eventEmitter.removeListener("eventProgress")
@@ -126,7 +123,7 @@ export default function Version({ baseurl, publish_version, message, application
     useEffect(() => {
         if (newRepresentionResponse != null)
             if (newRepresentionResponse)
-                setRepresentionState(REPSTATE.download)
+                setRepresentionState(REPRESENTATIONSTATE.download)
 
 
     }, [newRepresentionResponse])
@@ -134,16 +131,15 @@ export default function Version({ baseurl, publish_version, message, application
     useEffect(() => {
         if (repInstalResponse != null)
             if (repInstalResponse)
-                setRepresentionState(REPSTATE.install)
+                setRepresentionState(REPRESENTATIONSTATE.install)
     }, [repInstalResponse])
 
-    console.log("newRepresentionResponse", newRepresentionResponse)
     //RepresentStatus
     useEffect(() => {
         (async () => {
             if (representionState != null) {
                 switch (representionState) {
-                    case REPSTATE.download:
+                    case REPRESENTATIONSTATE.download:
                         console.log("9.1. represention_state - download")
                         if (Platform.OS == "android") {
                             console.log("9.1.2. uri: ", publish_version.info.version.file)
@@ -151,14 +147,14 @@ export default function Version({ baseurl, publish_version, message, application
                             await RNIbbMobileServices.setDownload(publish_version.info.version.file)
                         }
                         break;
-                    case REPSTATE.install:
+                    case REPRESENTATIONSTATE.install:
                         if (Platform.OS == "android") {
                             console.log("4. represention_state - install")
                             await RNIbbMobileServices.installApplication()
                             setRepresentionState(null)
                         }
                         break;
-                    case REPSTATE.fail:
+                    case REPRESENTATIONSTATE.fail:
                         console.log("represention_state FAIL")
                         setRepresentionState(null)
                         break;
@@ -176,23 +172,18 @@ export default function Version({ baseurl, publish_version, message, application
         (async () => {
             if (downloadStatus != null) {
                 const request = new Request();
-                console.log("downloadStatus", downloadStatus)
                 switch (downloadStatus) {
                     case STATUS_PENDING:
-                        console.log("STATUS_PENDING", STATUS_PENDING)
                         setDownloadStatusText("Beklemede...")
                         setUpgradeButton(upperCase("bekleniyor"))
                         break;
                     case STATUS_RUNNING:
-                        console.log("STATUS_RUNNING", STATUS_RUNNING)
                         setDownloadStatusText("Yükleniyor...")
                         break;
                     case STATUS_PAUSED:
-                        console.log("STATUS_PAUSED", STATUS_PAUSED)
                         setDownloadStatusText("Durduruldu...")
                         break;
                     case STATUS_SUCCESSFUL:
-                        console.log("STATUS_SUCCESSFUL", STATUS_SUCCESSFUL)
                         setUpgradeButton(upperCase("Başarılı"))
                         setDownloadStatusText(null)
                         setDownloadStatus(false)
@@ -207,7 +198,6 @@ export default function Version({ baseurl, publish_version, message, application
                         preInstallApplication()
                         break;
                     case STATUS_FAILED:
-                        console.log("STATUS_FAILED", STATUS_FAILED)
                         setDownloadStatusText("Başarısız...")
                         setDownloadStatus(false)
 
@@ -231,7 +221,6 @@ export default function Version({ baseurl, publish_version, message, application
     }, [downloadStatus, persent])
 
     useEffect(() => {
-        console.log("persent", persent)
         if (downloadStatus == STATUS_RUNNING)
             setUpgradeButton(persent.toFixed(2) + "%")
     }, [persent])
@@ -305,18 +294,13 @@ export default function Version({ baseurl, publish_version, message, application
                                                         },
                                                         { text: "Kur", onPress: () => preInstallApplication() }
                                                     ])
-
                                             } else {
                                                 //Dosya Hatalı ise Dosyayı silip yeniden Indir
                                                 await RNIbbMobileServices.deleteFile()
                                                 preDownloadApplication()
                                             }
                                         })()
-
-
                                     })
-
-
                             } else {
                                 //Dosya Bulunmuyorsa
                                 //indirme Proedürlerini uygula
@@ -327,7 +311,6 @@ export default function Version({ baseurl, publish_version, message, application
                     }).catch(err => {
                         console.log("HATA ", err)
                     })
-
             }
         }
     }
@@ -375,8 +358,6 @@ export default function Version({ baseurl, publish_version, message, application
             } else {
                 Alert.alert("HATA", "Dosya indirme ve yükleme işlemleri Android 19 versiyonu (Android KITKAT) altını desteklemez")
             }
-
-
         } else {
             //Platform IOS
         }
@@ -385,11 +366,7 @@ export default function Version({ baseurl, publish_version, message, application
     const preInstallApplication = async () => {
         if (Platform.OS == "android") {
             console.log("1. preInstallApplication RepID", { id: representeid })
-            //await dispatch(setRepresentionInstall(repID))
-            // const request = new Request();
-            //  const RepInstalResponse = await request.send(settings.url.representation.install, { id: representeid }, token)
-            setRepresentionState(REPSTATE.install)
-            //setRepInstalResponse(RepInstalResponse)
+            setRepresentionState(REPRESENTATIONSTATE.install)
         }
     }
     //Ekranı Kapatmak için
