@@ -6,7 +6,7 @@ export default class Request {
         return new Promise((resolve, reject) => {
             (async () => {
                 const config = this.createHeader(data, token)
-                console.log("config",config)
+             
                 if (typeof url != "undefined") {
                     const response = await fetch(url, config)
                     const result = await response.json()

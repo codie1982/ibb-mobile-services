@@ -9,17 +9,23 @@ export default function IBB(props) {
     const [applicationInfo, setApplicationInfo] = useState()
     const [token, setToken] = useState()
     const [screen, setScreen] = useState({ action: false, state: {} })
+    const [netState, setNetState] = useState(null)
     //Açıklamalar
     useEffect(() => {
         //TODO : bu paketin doğruluğu kontrol edilmeli
         props.config.packages.NetInfo.addEventListener(state => {
-            (async () => {
-                const _servis = new Servis()
-                await _servis.setServis(props.config, props.application_uuid, state)
-                setNServis(_servis)
-            })()
+            setNetState(state)
         });
     }, [])
+    useEffect(() => {
+        (async () => {
+            if (netState != null) {
+                const _servis = new Servis()
+                await _servis.setServis(props.config, props.application_uuid, netState)
+                setNServis(_servis)
+            }
+        })()
+    }, [netState])
 
     useEffect(() => {
         (async () => {
@@ -30,7 +36,6 @@ export default function IBB(props) {
                             servis
                                 .initialization(props.application_uuid, result.accessToken, result.isDeviceRegister)
                                 .then((state) => {
-                                    console.log("state", state)
                                     //Uygulama Tüm Bilgileri
                                     //Kullanıcı Bilgileri
                                     //Versiyon Bilgileri

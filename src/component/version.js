@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Linking } from "react-native"
+import { Linking ,Alert} from "react-native"
 import { View, Text, Platform, Button, StyleSheet, NativeEventEmitter, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableHighlight } from 'react-native'
 import { RNIbbMobileServices } from "../library/module"
 import { combineURL, setStyle, Color, upperCase } from "../library/models/cdn"

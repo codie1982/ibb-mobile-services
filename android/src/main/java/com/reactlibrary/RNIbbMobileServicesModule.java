@@ -53,6 +53,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     private final DeviceTypeResolver deviceTypeResolver;
     private final DeviceIdResolver deviceIdResolver;
     private BroadcastReceiver receiver;
+    private PermissionListener mPermissionListener;
 
     private double mLastBatteryLevel = -1;
     private String mLastBatteryState = "";
@@ -91,7 +92,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     @ReactMethod
     public void setFile(String filename,int version_number) {
         downloadFile = new DownloadFile(filename,version_number).prepare();
-        System.out.println("Sonuc : "+downloadFile.getDirectory()+ " - "+ downloadFile.getFilename()+ " - "+ downloadFile.getFilepath(true));
+        System.out.println("setFile Sonuc : "+downloadFile.getDirectory()+ " - "+ downloadFile.getFilename()+ " - "+ downloadFile.getFilepath(true));
     }
     @ReactMethod
     public void checkDestination(Promise promise) {
@@ -152,17 +153,22 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     }
     @ReactMethod
     public void deleteFile(Promise promise) {
+        System.out.println("deleteFile");
         try {
             if(this.checkDownloadFile()){
+                System.out.println("Dosya Yerinde Bulunuyor... Siliniyor");
                 this.deleteDownloadFile();
+            }else {
+                System.out.println("Dosya Yerinde Bulunamıyor");
             }
         }catch (Exception e){
             promise.reject("Dosya Bulunamıyor", e);
         }
     }
     public void deleteDownloadFile() {
-        File file = downloadFile.getPureFile(getReactApplicationContext());
+        System.out.println(" Siliniyor");
         try {
+            File file = downloadFile.getPureFile(getReactApplicationContext());
             file.delete();
         }catch (Exception e){
             System.out.println("Error : "+e.getMessage());
@@ -176,28 +182,32 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     }
 
     private boolean checkPermission() {
-        if (ContextCompat.checkSelfPermission(
-                getCurrentActivity(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            this.checkPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
-            return false;
-        } else {
+        System.out.println("checkPermission");
+        if (ContextCompat.checkSelfPermission(getCurrentActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            System.out.println("İzin Verilmiş");
             return true;
+        } else {
+            this.getPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+            System.out.println("İzin Verilmemiş");
+            return false;
         }
     }
 
-    public void checkPermission(String[] permissions, int requestCode){
-        ActivityCompat.requestPermissions(getCurrentActivity(),permissions,requestCode);
+    public void getPermission(String[] permissions, int requestCode){
+        PermissionAwareActivity activity = (PermissionAwareActivity) getCurrentActivity();
+        if (activity != null)
+            activity.requestPermissions(permissions, requestCode, (PermissionListener) this);
     }
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // callback to native module
+        System.out.println("requestCode :" + requestCode + "URL : " + this.getApplicationurl());
         if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startDownload(this.getApplicationurl());
                 return true;
             } else {
-                Toast.makeText(reactContext, "Uygulamaları Yüklemek için IBBMobilSTORE uygulamasına izin vermelisiniz.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(reactContext, "Uygulamanızın yeni güncellemelerini almak için uygulamanıza izinleri vermeniz gerekmektedir.", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
