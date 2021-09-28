@@ -40,19 +40,31 @@ Bu modul ile uygulamanızın versiyon kontrolünü kolaylıkla sağlayabilirsini
   	```
       compile project(':ibb-mobile-services')
   	```
+paketi kullanmadan önce 
 
+```
+npm i react-native-community/async-storage
+npm i react-native-device-info
+npm i react-native-network-info
+```
+Paketlerini kurmak gerekiyor ve ilgili yerlere vermek gerekiyor.
 
 ## Kullanım Şekli
 ```javascript
 import RNIbbMobileServices from 'ibb-mobile-services';
 
 const App = () => {
-  // const message = useSelector((state) => state.message.message);
-
-  const config = {
-    url: "",//Bağlantı Noktası 
-    port: "",//Bağlantı Portu
-  }
+  const [config, setConfig] = useState()
+  useEffect(() => {
+    setConfig({
+      url: "",
+      packages: {
+        AsyncStorage,
+        NetInfo,
+        RNDeviceInfo
+      }
+    })
+  }, [])
  //application_uuid : "Uygulamanıza Global servis tarafından verilen uniq kodu ::UUID
   return (<>
     <IBB application_uuid={"1234-1234-1234-1234"} config={config} >
