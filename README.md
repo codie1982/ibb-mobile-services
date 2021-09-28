@@ -40,21 +40,18 @@ Bu modul ile uygulamanızın versiyon kontrolünü kolaylıkla sağlayabilirsini
   	```
       compile project(':ibb-mobile-services')
   	```
-4. Uygulama çalışması için  ilgili paketlerin yüklenmesi gerekmektedir.
+
 
 ## Kullanım Şekli
 ```javascript
 import RNIbbMobileServices from 'ibb-mobile-services';
 
 const App = () => {
+  // const message = useSelector((state) => state.message.message);
 
   const config = {
-    url: "",//Bağlantı Noktası
-    packages: {
-      AsyncStorage,
-      NetInfo,
-      RNDeviceInfo
-    }
+    url: "",//Bağlantı Noktası 
+    port: "",//Bağlantı Portu
   }
  //application_uuid : "Uygulamanıza Global servis tarafından verilen uniq kodu ::UUID
   return (<>

@@ -42,8 +42,6 @@ export default class Model {
         device.getDeviceId = await this.reactNativeDeviceInfo.getDeviceId()
         device.getDeviceName = await this.reactNativeDeviceInfo.getDeviceName()
         device.getFontScale = await this.reactNativeDeviceInfo.getFontScale()
-        device.getFreeDiskStorage = await this.reactNativeDeviceInfo.getFreeDiskStorage()
-        device.getFreeDiskStorageOld = await this.reactNativeDeviceInfo.getFreeDiskStorageOld()
         device.getMacAddress = await this.reactNativeDeviceInfo.getMacAddress()
         device.getManufacturer = await this.reactNativeDeviceInfo.getManufacturer()
         device.getModel = await this.reactNativeDeviceInfo.getModel()
@@ -54,7 +52,6 @@ export default class Model {
         device.getTotalDiskCapacity = await this.reactNativeDeviceInfo.getTotalDiskCapacity()
         device.getTotalDiskCapacityOld = await this.reactNativeDeviceInfo.getTotalDiskCapacityOld()
         device.getTotalMemory = await this.reactNativeDeviceInfo.getTotalMemory()
-        device.getUsedMemory = await this.reactNativeDeviceInfo.getUsedMemory()
         device.getUserAgent = await this.reactNativeDeviceInfo.getUserAgent()
         device.hasNotch = await this.reactNativeDeviceInfo.hasNotch()
         device.isEmulator = await this.reactNativeDeviceInfo.isEmulator()
@@ -69,11 +66,6 @@ export default class Model {
     setVersionModel = async () => {
         let device = {}
         //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
-        /*         
-        package_uuid: req.body.package_uuid, //sonradan ekle
-        current_version_uuid: req.body.current_version_uuid, //sonradan ekle
-        application_uuid: req.body.application_uuid,
-        */
 
         device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
         device.current_version_number = await this.reactNativeDeviceInfo.getBuildNumber()
@@ -90,9 +82,19 @@ export default class Model {
         //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
         device.application_uuid = application_uuid;
         device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
-        device.getModel = await this.reactNativeDeviceInfo.getModel()
-        device.version_number = await this.reactNativeDeviceInfo.getBuildNumber()
-        device.package_name = await this.reactNativeDeviceInfo.getBundleId()
+      
+        device.readableVersion = await this.reactNativeDeviceInfo.getReadableVersion()
+        device.packageName = await this.reactNativeDeviceInfo.getBundleId()
+        device.freeDiskStorage = await this.reactNativeDeviceInfo.getFreeDiskStorage()
+        device.usedMemory = await this.reactNativeDeviceInfo.getUsedMemory()
+        device.isLocationEnabled = await this.reactNativeDeviceInfo.isLocationEnabled()
+        device.isHeadphonesConnected = await this.reactNativeDeviceInfo.isHeadphonesConnected()
+        device.batteryLevel = await this.reactNativeDeviceInfo.getBatteryLevel()
+
+        device.brand = await this.reactNativeDeviceInfo.getBrand();
+        device.manufacturer = await this.reactNativeDeviceInfo.getManufacturer()
+        device.model = await this.reactNativeDeviceInfo.getModel()
+
         device.platform = Platform.OS
         return device
     }

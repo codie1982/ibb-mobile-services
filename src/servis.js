@@ -19,7 +19,7 @@ export default class Servis {
      */
     setServis = async (config, application_uuid, netState) => {
         const settings = new Settings()
-        this.settings = await settings.setSettings(config, application_uuid, netState)
+            this.settings = await settings.setSettings(config, application_uuid, netState)
     }
     /**
    * Servisden Token almak için
@@ -30,7 +30,7 @@ export default class Servis {
             (async () => {
                 if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
                 const request = new Request;
-                let response = await request.send(this.settings.url.token, this.settings.model.token).catch(err=>console.log("HATA",err))
+                let response = await request.send(this.settings.url.token, this.settings.model.token).catch(err => console.log("HATA", err))
                 resolve({ accessToken: response.accessToken, refreshToken: response.refreshToken, isDeviceRegister: response.isDeviceRegister })
             })()
         })
@@ -45,8 +45,8 @@ export default class Servis {
                 if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
                 const request = new Request;
                 let nModel = await new Model(this.settings.packages.RNDeviceInfo)
-                this.settings.model.version = await nModel.setVersionModel()
-                register ? this.settings.model.register = await nModel.setRegisterModel(false) : null
+                this.settings.model.connection = await nModel.setConnectionModel(application_uuid)
+                !register ? this.settings.model.register = await nModel.setRegisterModel(false) : null
 
                 let data = {
                     application_uuid,
