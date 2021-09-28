@@ -15,7 +15,7 @@
         android:usesCleartextTraffic="true">
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.ibb.provider"
+            android:authorities="${applicationId}.eng.provider"
             android:exported="false"
             android:grantUriPermissions="true"
             >

@@ -1,0 +1,16 @@
+com/reactlibrary/RNIbbMobileServicesPackage.java
+ com.reactlibrary.RNIbbMobileServicesPackage
+com/reactlibrary/resolver/DeviceTypeResolver.java
+ com.reactlibrary.resolver.DeviceTypeResolver
+com/reactlibrary/DownloadFile.java
+ com.reactlibrary.DownloadFile
+com/reactlibrary/BuildConfig.java
+ com.reactlibrary.BuildConfig
+com/reactlibrary/DeviceType.java
+ com.reactlibrary.DeviceType
+com/reactlibrary/RNIbbMobileServicesModule.java
+ com.reactlibrary.RNIbbMobileServicesModule
+ com.reactlibrary.RNIbbMobileServicesModule$1
+ com.reactlibrary.RNIbbMobileServicesModule$2
+com/reactlibrary/resolver/DeviceIdResolver.java
+ com.reactlibrary.resolver.DeviceIdResolver

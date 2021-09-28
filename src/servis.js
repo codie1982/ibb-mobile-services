@@ -2,157 +2,100 @@ import React from 'react'
 import Version from "./component/version"
 import Test from "./component/test"
 import Error from "./component/error"
-import io from 'socket.io-client';
 import Settings from "./library/models/settings"
 import Model from "./library/models/model"
 import Request from "./library/http"
 export default class Servis {
+    settings;
+    constructor() {
+        this.settings;
+    }
 
-    constructor(config) {
-        (async () => {
-            const settings = new Settings();
-            this.settings = await settings.setSettings(config)
-            this.token;
-            this.applicationId;
-            this.model = {}
-            this.deviceModel = {}
-            this.versionModel = {}
-            this.newVersion = false
-            //Soket Bağlantısı
-            this.socket = io(`${this.settings.base_url}`);
-        })()
+    /**
+     * Servis ve ayarlar 
+     * @param {*} config 
+     * @param {*} application_uuid 
+     * @param {*} netState 
+     */
+    setServis = async (config, application_uuid, netState) => {
+        const settings = new Settings()
+            this.settings = await settings.setSettings(config, application_uuid, netState)
     }
     /**
-       * Servisden Token almak için
-       * @param {string} application_uuid 
-       */
-    getApplicationInfo() {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
-                const model = new Model;
-                let initModel = await model.createInitModel(application_uuid)
-                const request = new Request;
-                let response = await request.send(this.settings.token_url, initModel)
-                resolve(response.token)
-            })()
-        })
-    }
-    /**
-       * Servisden Token almak için
-       * @param {string} application_uuid 
-       */
+   * Servisden Token almak için
+   * @param {string} application_uuid 
+   */
     getToken(application_uuid) {
         return new Promise((resolve, reject) => {
             (async () => {
                 if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
-                const model = new Model;
-                let initModel = await model.createInitModel(application_uuid)
                 const request = new Request;
-                let response = await request.send(this.settings.token_url, initModel)
-                resolve({ token: response.token, model: initModel })
+                let response = await request.send(this.settings.url.token, this.settings.model.token).catch(err => console.log("HATA", err))
+                resolve({ accessToken: response.accessToken, refreshToken: response.refreshToken, isDeviceRegister: response.isDeviceRegister })
             })()
         })
     }
     /**
-     * Uygulama Socket bağlantısı gerçekleşiyor.
+     * uygulama ilk bağlantı kontrolü
      * @param {string} application_uuid 
      */
-    init(application_uuid) {
+    initialization(application_uuid, token, register) {
         return new Promise((resolve, reject) => {
             (async () => {
-                const model = new Model;
-                let initModel = await model.createInitModel(application_uuid)
-                this.socket.emit("active_connection", JSON.stringify(initModel))
-                this.socket.on("application_info", (application) => {
-                    if (application.success) {
-                        resolve(application.info)
-                    } else {
-                        reject(application)
-                    }
-                })
-            })()
-        })
-    }
-    /**
-     * 
-     * @param {String} application_uuid 
-     */
-    setApplicationModel(application_uuid) {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                //model.applicationId = applicationId
-                this.model = model
-                resolve(true)
-            })()
-        })
-    }
-    setDeviceModel() {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                const model = new Model;
-                this.deviceModel = await model.createDeviceModel()
-                resolve(this.deviceModel)
-            })()
-        })
-    }
-    setVersionModel(application_info) {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                const model = new Model;
-                let versionModel = await model.createVersionModel(application_info)
-                this.versionModel = versionModel
-                resolve(versionModel)
-            })()
-        })
-    }
-
-    /**
-    * Cihazı Kayıt Etmek için
-    */
-    setDevice(token) {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                const model = new Model;
-                let deviceModel = await model.createDeviceModel()
+                if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
                 const request = new Request;
-                await request.send(this.settings.init_url, deviceModel, token)
-                resolve(true)
+                let nModel = await new Model(this.settings.packages.RNDeviceInfo)
+                this.settings.model.connection = await nModel.setConnectionModel(application_uuid)
+                !register ? this.settings.model.register = await nModel.setRegisterModel(false) : null
+
+                let data = {
+                    application_uuid,
+                    model: this.settings.model,
+                    netinfo: this.settings.netinfo,
+                }
+                if (token) {
+                    let response = await request.send(this.settings.url.initialization, data, token) //url, data, token
+                    resolve(response)
+                } else {
+                    reject("Token Bulunmuyor.")
+                }
+
             })()
         })
     }
 
-
-    async setState(application_info, token) {
-        const versionModel = await this.setVersionModel(application_info)
-        //console.log("versionModel",versionModel)
-        console.log("this.settings.version_url", this.settings.version_url)
-        if (typeof this.settings.version_url != "undefined") {
-            const request = new Request;
-            const data = await request.send(this.settings.version_url, versionModel, token).catch(err => {
-                console.log("ERROR State", err)
-            })
-            if (typeof data.result != "undefined")
-                return data.result
-        }
-        return false
-    }
-
-    getComponent(state, config, closeCallback) {
-        if (state.type == "error") {
-            return <Error component={state.component} message={state.message} config={config} />
+    /**
+     * Servisden gelen cevaplara göre ilgili componentleri açıyor.
+     * @param {*} component 
+     * @param {*} type 
+     * @param {*} publish_version 
+     * @param {*} message 
+     * @param {*} application 
+     * @param {*} token 
+     * @param {*} closeCallback 
+     */
+    getComponent(component, type, publish_version, message, application, token, closeCallback) {
+        if (type == "error") {
+            return <Error component={state.component} message={message} />
         } else {
-            switch (state.component) {
+            switch (component) {
                 case "new_version":
-                    return <Version baseurl={this.settings.base_url} detail={state.version} message={state.message} close={closeCallback} config={config} />
+                    return <Version
+                        baseurl={this.settings.url.base}
+                        publish_version={publish_version}
+                        message={message}
+                        application={application}
+                        settings={this.settings}
+                        token={token}
+                        close={closeCallback} />
                 case "test_version":
-                    return <Test detail={state.version} message={state.message} close={closeCallback} config={config} />
+                    return <Test detail={publish_version} message={message} close={closeCallback} />
                 case "no_version":
-                    return <Error message={state.message} config={config} />
+                    return <Error message={message} />
                 case "delete_application":
-                    return <Error message={state.message} config={config} />
+                    return <Error message={message} />
                 default:
-                    return <Error message={state.message} config={config} />
+                    return <Error message={message} />
             }
         }
     }

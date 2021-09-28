@@ -1,0 +1,32 @@
+  if (Platform.OS === 'android') {
+            if (location == "global") {
+                const supported = await Linking.canOpenURL(detail.info.version.url);
+                if (supported) {
+                    await Linking.openURL(detail.info.version.url);
+                } else {
+                    Alert.alert(`Belirtilen Linke Ulaşılamıyor: ${detail.info.version.url}`);
+                }
+            } else {
+                if (downloadState != "STATUS_RUNNING!")
+                    await RNInfo.uploadNewFile(detail.info.version.file, detail.info.version.filename)
+            }
+        } else if (Platform.OS === "ios") {
+            if (location == "global") {
+                const supported = await Linking.canOpenURL(detail.info.version.globalurl);
+                if (supported) {
+                    await Linking.openURL(detail.info.version.globalurl);
+                } else {
+                    Alert.alert(`Belirtilen Linke Ulaşılamıyor: ${detail.info.version.globalurl}`);
+                }
+            } else {
+                const itmsServices = `itms-services://?action=download-manifest&url=${baseurl}${detail.info.version.itmsservices}`
+                //TODO local servis üzerinden yükleme yapmıyor olabilir global bir servis üzerinden indirme yapılıyor daha sonra tekrardan bakmam gerekecek.
+                const supported = await Linking.canOpenURL(itmsServices);
+                if (supported) {
+                    await Linking.openURL(itmsServices);
+                } else {
+                    Alert.alert(`Belirtilen İndir Ulaşılamıyor: ${itmsServices}`);
+                }
+            }
+
+        }

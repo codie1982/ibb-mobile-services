@@ -19,6 +19,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -47,12 +48,12 @@ import static android.provider.Settings.Secure.getString;
 public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implements PermissionListener {
     private final int STORAGE_PERMISSION_CODE = 100;
     private final ReactApplicationContext reactContext;
-
-    Long LASTDOWNLOAD;
+    Long LASTDOWNLOAD = null;
 
     private final DeviceTypeResolver deviceTypeResolver;
     private final DeviceIdResolver deviceIdResolver;
     private BroadcastReceiver receiver;
+    private PermissionListener mPermissionListener;
 
     private double mLastBatteryLevel = -1;
     private String mLastBatteryState = "";
@@ -64,263 +65,289 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     public  static String FILEPATH = "";
     public  static String DIRECTORY = "";
     public  static String FILENAME = "";
+    private String msg = "???";
+    private int downloadStatus;
+    private String applicationurl;
+    public DownloadFile downloadFile;
     public RNIbbMobileServicesModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
         this.deviceTypeResolver = new DeviceTypeResolver(reactContext);
         this.deviceIdResolver = new DeviceIdResolver(reactContext);
         PermissionAwareActivity activity = (PermissionAwareActivity) getCurrentActivity();
-        if (activity == null) {
-            // Handle null case
-        }
-
         reactContext.registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
     }
-
-    @Override
-    public Map<String, Object> getConstants() {
-        String appVersion, buildNumber, appName;
-        try {
-            //appVersion = getPackageInfo().versionName;
-            buildNumber = Integer.toString(getPackageInfo().versionCode);
-            appName = getReactApplicationContext().getApplicationInfo().loadLabel(getReactApplicationContext().getPackageManager()).toString();
-        } catch (Exception e) {
-            //appVersion = "unknown";
-            buildNumber = "unknown";
-            appName = "unknown";
-        }
-
-        final Map<String, Object> constants = new HashMap<>();
-        constants.put("uniqueId", getUniqueIdSync());
-        constants.put("deviceId", Build.BOARD);
-        constants.put("bundleId", getReactApplicationContext().getPackageName());
-        constants.put("systemName", "Android");
-        constants.put("systemVersion", Build.VERSION.RELEASE);
-        //constants.put("appVersion", appVersion);
-        constants.put("buildNumber", buildNumber);
-        constants.put("isTablet", deviceTypeResolver.isTablet());
-        constants.put("appName", appName);
-        //constants.put("brand", Build.BRAND);
-        constants.put("model", Build.MODEL);
-        constants.put("deviceType", deviceTypeResolver.getDeviceType().getValue());
-        return constants;
-    }
-
     @Override
     public String getName() {
         return "RNIbbMobileServices";
     }
-
-    private PackageInfo getPackageInfo() throws Exception {
-        return getReactApplicationContext().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), 0);
+    public void setApplicationurl(String url) {
+        this.applicationurl = url;
+    }
+    public String getApplicationurl() {
+        return applicationurl;
     }
 
     @ReactMethod
-    public void getUniqueId(Promise promise) {
-        String android_id = Settings.Secure.getString(getReactApplicationContext().getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-        promise.resolve(android_id);
-    }
-
-    @SuppressLint("HardwareIds")
-    @ReactMethod(isBlockingSynchronousMethod = true)
-    public String getUniqueIdSync() {
-        return getString(getReactApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-    }
-
-
-    @ReactMethod
-    public void getBundleId(Promise promise) {
-        String packageName = getReactApplicationContext().getPackageName();
-        //System.out.println("package_name : " + packageName);
-        promise.resolve(packageName);
-    }
-
-    @ReactMethod
-    public void appVersion(Promise promise) throws PackageManager.NameNotFoundException {
-        PackageInfo packageInfo = getReactApplicationContext().getPackageManager().getPackageInfo(getReactApplicationContext().getPackageName(), 0);
-        int versionCode = packageInfo.versionCode;
-        promise.resolve(versionCode);
+    public void setFile(String filename,int version_number) {
+        downloadFile = new DownloadFile(filename,version_number).prepare();
+        System.out.println("setFile Sonuc : "+downloadFile.getDirectory()+ " - "+ downloadFile.getFilename()+ " - "+ downloadFile.getFilepath(true));
     }
     @ReactMethod
-    public void brand(Promise promise) {
-        promise.resolve(Build.BRAND);
-    }
-    @ReactMethod
-    public void getModel(Promise promise) {
-        promise.resolve(Build.MODEL);
-    }
-    @ReactMethod
-    public void getManufacturer(Promise promise) {
-        promise.resolve(Build.MANUFACTURER);
-    }
-    @ReactMethod
-    public void getDeviceName(Promise promise) {
-        promise.resolve(Build.DEVICE);
-    }
-
-    @ReactMethod(isBlockingSynchronousMethod = true)
-    public String getInstallerPackageNameSync() {
-        String packageName = getReactApplicationContext().getPackageName();
-        String installerPackageName = getReactApplicationContext().getPackageManager().getInstallerPackageName(packageName);
-        if (installerPackageName == null) {
-            return "unknown";
-        }
-        System.out.println("package_name : " + installerPackageName);
-        return installerPackageName;
-    }
-
-    @ReactMethod
-    public void uploadNewFile(String URL ,String filename, Promise promise) {
-        System.out.println("URL : " + URL);
-
-        if(ContextCompat.checkSelfPermission(
-                getCurrentActivity(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-           this.checkPermission(new String[] {
-                   Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                   Manifest.permission.ACCESS_FINE_LOCATION,
-                   Manifest.permission.CAMERA,
-                   Manifest.permission.ACCESS_FINE_LOCATION,
-                   Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-                   Manifest.permission.ACCESS_WIFI_STATE,
-           },STORAGE_PERMISSION_CODE);
-        }else {
-            DIRECTORY = filename;
-            FILENAME = filename +".apk";
-            FILEPATH = DIRECTORY + "/"+ FILENAME;
-            System.out.println(FILEPATH);
-            System.out.println(URL);
-            startDownload(URL);
+    public void checkDestination(Promise promise) {
+        try {
+            File downloadFolder = downloadFile.getPureDirectory(getReactApplicationContext());
+            if(!downloadFolder.exists()){
+                downloadFolder.mkdir();
+            }
+            if(this.checkDownloadFile()){
+                promise.resolve(true);
+            }else {
+                promise.resolve(false);
+            }
+        }catch (Exception e){
+            promise.reject("Dosya Oluşturma Hatası", e);
         }
     }
-    public void startDownload(String URL) {
-        System.out.println("System Version : " + Build.VERSION.SDK_INT);
-        if (Build.VERSION.SDK_INT >= 24) {
-            File folder = new File(getReactApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), DIRECTORY);
-            if (!folder.exists()) {
-                folder.mkdirs();
+
+    //Dosya yerini kontrol ediyor
+    public Boolean checkDownloadFile() {
+        try {
+            File downloadfile = downloadFile.getPureFile(getReactApplicationContext());
+            if(downloadfile.exists()){
+                return true;
+            }else{
+                return false;
             }
-
-            File file = new File(getReactApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(), FILEPATH);
-            if (file.isFile()) {
-                file.delete();
-            }
-
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(URL))
-                    .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
-                    .setAllowedOverMetered(true)
-                    .setAllowedOverRoaming(true)
-                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-                    .setDestinationInExternalFilesDir(getCurrentActivity(),
-                            Environment.DIRECTORY_DOCUMENTS + "/" + DIRECTORY, FILENAME);
-
-            final DownloadManager downloadManager = (DownloadManager) getCurrentActivity().getSystemService(getCurrentActivity().DOWNLOAD_SERVICE);
-            LASTDOWNLOAD = downloadManager.enqueue(request);
-
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    boolean downloading = true;
-                    while (downloading) {
-                        //System.out.println(downloading);
-                        DownloadManager.Query q = new DownloadManager.Query();
-                        q.setFilterById(LASTDOWNLOAD);
-                        final Cursor cursor = downloadManager.query(q);
-                        cursor.moveToFirst();
-                        double bytes_downloaded = cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                        double bytes_total = cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-                            downloading = false;
-                        }
-                        final WritableMap params = Arguments.createMap();
-                        params.putDouble("bytes_downloaded",bytes_downloaded);
-                        params.putDouble("bytes_total",bytes_total);
-
-
-                        final double dl_progress = (double) ((bytes_downloaded * 100l) / bytes_total) + 0.00001;
-                        params.putDouble("progress",dl_progress);
-                        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                .emit("eventProgress", params);
-
-                        getCurrentActivity().runOnUiThread(new Runnable() {
-                            DecimalFormat precision = new DecimalFormat("0.00");
-                            @Override
-                            public void run() {
-                                System.out.println("progress : " + (int) dl_progress);
-                                // pgsApplicationDownloading.setProgress((int) dl_progress);
-                            }
-                        });
-                        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                .emit("eventState", statusMessage(cursor));
-
-                        statusMessage(cursor);
-                        System.out.println(statusMessage(cursor));
-                        cursor.close();
-                    }
+        }catch (Exception e){
+            return false;
+        }
+    }
+    @ReactMethod //Dosya Doğruluğunu kontrol ediyor.
+    public void checkFileAccuracy(Integer fileSize ,Promise promise) {
+        try {
+            if(this.checkDownloadFile()){
+                File df = downloadFile.getPureFile(getReactApplicationContext());
+                Long dfSize = df.length();
+                Long _fileSize = new Long(fileSize);
+                if(dfSize.equals(_fileSize)){
+                    promise.resolve(true);
+                }else {
+                    promise.resolve(false);
                 }
-            }).start();
+            }else {
+                promise.resolve(false);
+            }
+        }catch (Exception e){
+            promise.reject("Dosya Oluşturma Hatası", e);
         }
     }
 
-    public void checkPermission(String[] permissions, int requestCode){
-        ActivityCompat.requestPermissions(getCurrentActivity(),permissions,requestCode);
+    @ReactMethod
+    public void setDownload(String URL) {
+        this.setApplicationurl(URL);
+        if (this.checkPermission()) {
+            startDownload(getApplicationurl());
+        }
     }
-    private String statusMessage(Cursor c) {
-        String msg = "???";
+    @ReactMethod
+    public void deleteFile(Promise promise) {
+        System.out.println("deleteFile");
+        try {
+            if(this.checkDownloadFile()){
+                System.out.println("Dosya Yerinde Bulunuyor... Siliniyor");
+                this.deleteDownloadFile();
+            }else {
+                System.out.println("Dosya Yerinde Bulunamıyor");
+            }
+        }catch (Exception e){
+            promise.reject("Dosya Bulunamıyor", e);
+        }
+    }
+    public void deleteDownloadFile() {
+        System.out.println(" Siliniyor");
+        try {
+            File file = downloadFile.getPureFile(getReactApplicationContext());
+            file.delete();
+        }catch (Exception e){
+            System.out.println("Error : "+e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void installApplication() {
+        System.out.println("INSTALL Başla");
+        setupApplication(getReactApplicationContext());
+    }
+
+    private boolean checkPermission() {
+        System.out.println("checkPermission");
+        if (ContextCompat.checkSelfPermission(getCurrentActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            System.out.println("İzin Verilmiş");
+            return true;
+        } else {
+            this.getPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+            System.out.println("İzin Verilmemiş");
+            return false;
+        }
+    }
+
+    public void getPermission(String[] permissions, int requestCode){
+        PermissionAwareActivity activity = (PermissionAwareActivity) getCurrentActivity();
+        if (activity != null)
+            activity.requestPermissions(permissions, requestCode, (PermissionListener) this);
+    }
+    @Override
+    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // callback to native module
+        System.out.println("requestCode :" + requestCode + "URL : " + this.getApplicationurl());
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startDownload(this.getApplicationurl());
+                return true;
+            } else {
+                Toast.makeText(reactContext, "Uygulamanızın yeni güncellemelerini almak için uygulamanıza izinleri vermeniz gerekmektedir.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public void startDownload(String URL) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            if(!this.checkDownloadFile()){
+                if (LASTDOWNLOAD == null){
+                    android.app.DownloadManager.Request request = new android.app.DownloadManager.Request(Uri.parse(URL))
+                            .setTitle(downloadFile.getDownloadTitle())
+                            .setDescription(downloadFile.getDownloadDescription())
+                            .setAllowedNetworkTypes(android.app.DownloadManager.Request.NETWORK_WIFI | android.app.DownloadManager.Request.NETWORK_MOBILE)
+                            .setAllowedOverMetered(true)
+                            .setAllowedOverRoaming(true)
+                            .setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                            .setDestinationInExternalFilesDir(getCurrentActivity(),
+                                    Environment.DIRECTORY_DOWNLOADS, downloadFile.getFilepath(false));
+
+                    final android.app.DownloadManager downloadManager = (android.app.DownloadManager) getCurrentActivity().getSystemService(getCurrentActivity().DOWNLOAD_SERVICE);
+                    LASTDOWNLOAD = downloadManager.enqueue(request);
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean downloading = true;
+                            while (downloading) {
+                                //System.out.println(downloading);
+                                android.app.DownloadManager.Query q = new android.app.DownloadManager.Query();
+                                q.setFilterById(LASTDOWNLOAD);
+                                final Cursor cursor = downloadManager.query(q);
+                                try {
+                                    if(cursor !=null && cursor.moveToFirst()){
+                                        if (cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)) == android.app.DownloadManager.STATUS_SUCCESSFUL) {
+                                            downloading = false;
+                                        }
+                                        if (cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)) == android.app.DownloadManager.STATUS_FAILED) {
+                                            downloading = false;
+                                        }
+                                        if(downloading){
+                                            double downloaded_bytes = cursor.getDouble(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                            final WritableMap params = Arguments.createMap();
+                                            params.putDouble("downloaded_bytes", downloaded_bytes);
+
+                                            getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                                    .emit("eventProgress", params);
+                                        }
+                                        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                                .emit("eventStatus", statusMessage(cursor));
+                                    }else {
+                                        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                                .emit("eventStatus", android.app.DownloadManager.STATUS_FAILED);
+                                    }
+
+                                }catch (Exception ex){
+                                    System.out.println(ex.getMessage());
+                                    getReactApplicationContext()
+                                            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                            .emit("eventStatus", android.app.DownloadManager.STATUS_FAILED);
+                                }finally {
+                                    cursor.close();
+                                }
+                            }
+
+                        }
+                    }).start();
+                }
+            }
+        }
+    }
+
+    private Integer statusMessage(Cursor c) {
+        Integer msg;
         switch (c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
             case DownloadManager.STATUS_FAILED:
-                //pgsApplicationDownloading.setIndeterminate(true);
-                msg = "STATUS_FAILED!";
+                msg = DownloadManager.STATUS_FAILED;
                 break;
-
             case DownloadManager.STATUS_PAUSED:
-                //pgsApplicationDownloading.setIndeterminate(true);
-
-                msg = "STATUS_PAUSED!";
+                msg = DownloadManager.STATUS_PAUSED;
                 break;
             case DownloadManager.STATUS_PENDING:
-                //pgsApplicationDownloading.setIndeterminate(true);
-                msg = "STATUS_PENDING!";
+                msg = DownloadManager.STATUS_PENDING;
                 break;
             case DownloadManager.STATUS_RUNNING:
-                //pgsApplicationDownloading.setIndeterminate(false);
-                msg = "STATUS_RUNNING!";
+                msg =DownloadManager.STATUS_RUNNING;
                 break;
             case DownloadManager.STATUS_SUCCESSFUL:
-                //pgsApplicationDownloading.setIndeterminate(false);
-
-                msg = "STATUS_SUCCESSFUL!";
+                msg = DownloadManager.STATUS_SUCCESSFUL;
                 break;
             default:
-                msg = "Download is nowhere in sight";
+                msg = DownloadManager.STATUS_PENDING;
                 break;
         }
         return (msg);
     }
+
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void onReceive(Context context, Intent intent) {
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            if (LASTDOWNLOAD == id) {
-                setupApplication(context, intent);
-                System.out.println("İndirme Tamamlandı");
-            }
+            long id = intent.getLongExtra(android.app.DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            System.out.println("LASTDOWNLOAD " + LASTDOWNLOAD + " " + id);
+            if (LASTDOWNLOAD != null)
+                if (LASTDOWNLOAD == id) {
+                    switch (downloadStatus) {
+                        case android.app.DownloadManager.STATUS_FAILED:
+                            Toast.makeText(reactContext, "İndirme Başarısız. Lütfen tekrar deneyin", Toast.LENGTH_SHORT).show();
+                            getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                    .emit("eventStatus", android.app.DownloadManager.STATUS_FAILED);
+                            System.out.println("İndirme Tamamlandı "+android.app.DownloadManager.STATUS_FAILED);
+                            break;
+                        case android.app.DownloadManager.STATUS_SUCCESSFUL:
+                            Toast.makeText(reactContext, "İndirme Başarılı gerçekleşti.Uygulama kurulumu otomatik başlatılacaktır.", Toast.LENGTH_SHORT).show();
+                            getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                    .emit("eventStatus", android.app.DownloadManager.STATUS_SUCCESSFUL);
+                            System.out.println("İndirme Tamamlandı "+ android.app.DownloadManager.STATUS_SUCCESSFUL);
+                            break;
+                        default: break;
+                    }
+                }
+            context.unregisterReceiver(this);
         }
-
-        public void setupApplication(Context context, Intent intent) {
+    };
+    public void setupApplication(Context context) {
+        File file = downloadFile.getPureFile(context);
+        System.out.println("FILE : "+file);
+        System.out.println("exists : " + file.exists());
+        System.out.println("getName : " + file.getName());
+        System.out.println("getPath : " + file.getPath());
+        System.out.println("Build.VERSION.SDK_INT " + Build.VERSION.SDK_INT);
+        if (file.exists()) {
             if (Build.VERSION.SDK_INT <= 23) {
-                Uri uri = Uri.fromFile(new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(), FILEPATH));
+                Uri uri = Uri.fromFile(file);
                 Intent install = new Intent(Intent.ACTION_VIEW);
                 install.setDataAndType(uri, "application/vnd.android.package-archive");
                 context.startActivity(install);
-                context.unregisterReceiver(this);
-            }else {
-                Uri contentUri = FileProvider.getUriForFile(context, getReactApplicationContext().getPackageName()+".ibb.provider",
-                new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString(),
-                        FILEPATH));
+            } else {
+                String authority = getReactApplicationContext().getPackageName() + ".eng.provider";
+                Uri contentUri = FileProvider.getUriForFile(context, authority, file);
                 Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
                 install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -328,14 +355,9 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                 install.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
                 install.setDataAndType(contentUri, "application/vnd.android.package-archive");
                 context.startActivity(install);
-                context.unregisterReceiver(this);
             }
+        } else {
+            Toast.makeText(reactContext, "Indirilen dosyaya Erişilemiyor. Lütfen Tekrar deneyin", Toast.LENGTH_SHORT).show();
         }
-    };
-
-    @Override
-    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        System.out.println("Izin Kabul Edildi" + requestCode);
-        return false;
     }
 }

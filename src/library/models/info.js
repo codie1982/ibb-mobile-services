@@ -1,4 +1,4 @@
-
+/* 
 import { RNInfo } from "../module"
 import { Platform } from "react-native"
 let deviceId;
@@ -100,4 +100,5 @@ const deviceInfoModule = {
     getManufacturer,
     getDeviceName
 };
-export default deviceInfoModule;
+export default deviceInfoModule; 
+*/

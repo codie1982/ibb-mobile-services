@@ -1,19 +1,8 @@
 import { Dimensions } from "react-native"
 import Settings from "./settings"
-export const combineURL = (url, config) => {
-    return new Promise((resolve, reject) => {
-        const settings = new Settings;
-        settings.setSettings(config).then(cdn => {
-            resolve(cdn.base_url + "/" + url)
-        })
-    })
-}
-export const combineURL_SENC = (url, config) => {
-    const settings = new Settings;
-    settings.setSettings(config).then(cdn => {
-        console.log("cdn.base_url/url", cdn.base_url + "/" + url)
-        return (cdn.base_url + "/" + url)
-    })
+
+export const combineURL = (url, base) => {
+    return (base + "/" + url)
 
 }
 export const setStyle = (imageWidth, imageHeight, percent, position) => {
