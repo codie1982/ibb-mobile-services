@@ -81,7 +81,7 @@ export default class Model {
         //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
         device.application_uuid = application_uuid;
         device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
-      
+
         device.readableVersion = await this.reactNativeDeviceInfo.getReadableVersion()
         device.package_name = await this.reactNativeDeviceInfo.getBundleId()
         device.freeDiskStorage = await this.reactNativeDeviceInfo.getFreeDiskStorage()
