@@ -84,7 +84,7 @@ export default class Model {
         device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
       
         device.readableVersion = await this.reactNativeDeviceInfo.getReadableVersion()
-        device.packageName = await this.reactNativeDeviceInfo.getBundleId()
+        device.package_name = await this.reactNativeDeviceInfo.getBundleId()
         device.freeDiskStorage = await this.reactNativeDeviceInfo.getFreeDiskStorage()
         device.usedMemory = await this.reactNativeDeviceInfo.getUsedMemory()
         device.isLocationEnabled = await this.reactNativeDeviceInfo.isLocationEnabled()

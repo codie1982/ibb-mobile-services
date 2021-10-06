@@ -76,7 +76,7 @@ export default class Servis {
      */
     getComponent(component, type, publish_version, message, application, token, closeCallback) {
         if (type == "error") {
-            return <Error component={state.component} message={message} />
+            return <Error message={message} />
         } else {
             switch (component) {
                 case "new_version":

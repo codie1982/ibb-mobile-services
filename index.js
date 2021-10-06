@@ -19,7 +19,8 @@ export default function IBB(props) {
             props.config.packages.NetInfo.addEventListener(state => {
                 setNetState(state)
             });
-    }, [props])
+    }, [])
+
     useEffect(() => {
         (async () => {
             if (netState != null) {
@@ -45,32 +46,37 @@ export default function IBB(props) {
         }
     }, [servis])
     useEffect(() => {
-        if (token != null) {
-            servis
-                .initialization(props.application_uuid, token, isDeviceRegister)
-                .then((state) => {
-                    //Uygulama Tüm Bilgileri
-                    //Kullanıcı Bilgileri
-                    //Versiyon Bilgileri
-                    setApplicationInfo(state.application_info)
-                    setToken(result.accessToken)
-
-                    setScreen({
-                        action: state.version_info.action,
-                        component: state.version_info.component,
-                        type: state.version_info.type,
-                        publish_version: state.version_info.version,
-                        message: state.version_info.message,
-                        application: {
-                            application: state.application_info.application,
-                            package: state.application_info.package,
-                            current_version: state.application_info.current_version,
-                        }
+        try {
+            if (token != null) {
+                servis
+                    .initialization(props.application_uuid, token, isDeviceRegister)
+                    .then((state) => {
+                        console.log("state", state)
+                        //Uygulama Tüm Bilgileri
+                        //Kullanıcı Bilgileri
+                        //Versiyon Bilgileri
+                        setApplicationInfo(state.application_info)
+                        setToken(token.accessToken)
+                        setScreen({
+                            action: state.version_info.action,
+                            component: state.version_info.component,
+                            type: state.version_info.type,
+                            publish_version: state.version_info.version,
+                            message: state.version_info.message,
+                            application: {
+                                application: state.application_info.application,
+                                package: state.application_info.package,
+                                current_version: state.application_info.current_version,
+                            }
+                        })
+                    }).catch(error => {
+                        console.log("initialization HATA : ", error.message)
                     })
-                }).catch(error => {
-                    console.log("initialization HATA : ", error.message)
-                })
+            }
+        } catch (error) {
+            console.log("TRY CATCH initialization HATA : ", error)
         }
+
     }, [token])
 
     const closeScreen = () => {
