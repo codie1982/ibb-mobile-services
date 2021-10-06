@@ -98,8 +98,7 @@ export default function Version({ baseurl, publish_version, message, application
         }
         return () => {
             if (Platform.OS === 'android') {
-                eventEmitter.removeListener("eventProgress")
-                eventEmitter.removeListener("eventStatus")
+                eventEmitter.removeAllListeners()
             } else {
                 console.log("Yüklemeye Hazırlanıyor...")
             }

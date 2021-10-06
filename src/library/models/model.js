@@ -29,11 +29,11 @@ export default class Model {
         return await this.reactNativeDeviceInfo.getBuildNumber()
 
     }
-    setRegisterModel = async () => {
+    setRegisterModel = async (application_uuid) => {
         let device = {}
         //burada cache hazırlayabiliriz. herseferinde büyük zaman kaybı
+        device.application_uuid = application_uuid;
         device.device_id = await this.reactNativeDeviceInfo.getUniqueId();
-        device.version_number = await this.reactNativeDeviceInfo.getBuildNumber()
         device.package_name = await this.reactNativeDeviceInfo.getBundleId()
         device.getApplicationName = await this.reactNativeDeviceInfo.getApplicationName();
         device.getBuildId = await this.reactNativeDeviceInfo.getBuildId();
@@ -46,7 +46,6 @@ export default class Model {
         device.getManufacturer = await this.reactNativeDeviceInfo.getManufacturer()
         device.getModel = await this.reactNativeDeviceInfo.getModel()
         device.getPowerState = await this.reactNativeDeviceInfo.getPowerState()
-        device.getReadableVersion = await this.reactNativeDeviceInfo.getReadableVersion()
         device.getSystemName = await this.reactNativeDeviceInfo.getSystemName()
         device.getSystemVersion = await this.reactNativeDeviceInfo.getSystemVersion()
         device.getTotalDiskCapacity = await this.reactNativeDeviceInfo.getTotalDiskCapacity()
@@ -98,5 +97,4 @@ export default class Model {
         device.platform = Platform.OS
         return device
     }
-
 }

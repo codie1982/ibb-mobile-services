@@ -19,7 +19,7 @@ export default class Servis {
      */
     setServis = async (config, application_uuid, netState) => {
         const settings = new Settings()
-            this.settings = await settings.setSettings(config, application_uuid, netState)
+        this.settings = await settings.setSettings(config, application_uuid, netState)
     }
     /**
    * Servisden Token almak için
@@ -39,15 +39,16 @@ export default class Servis {
      * uygulama ilk bağlantı kontrolü
      * @param {string} application_uuid 
      */
-    initialization(application_uuid, token, register) {
+    initialization(application_uuid, token) {
         return new Promise((resolve, reject) => {
             (async () => {
                 if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
                 const request = new Request;
                 let nModel = await new Model(this.settings.packages.RNDeviceInfo)
                 this.settings.model.connection = await nModel.setConnectionModel(application_uuid)
-                !register ? this.settings.model.register = await nModel.setRegisterModel(false) : null
-
+                let device_id = await nModel.getDeviceID()
+                let registerResponse = await request.send(this.settings.url.isDeviceRegister, { device_id }, token) //url, data, token
+                registerResponse.success ? !registerResponse.register ? this.settings.model.register = await nModel.setRegisterModel(application_uuid) : null : null
                 let data = {
                     application_uuid,
                     model: this.settings.model,

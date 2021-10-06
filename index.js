@@ -36,7 +36,6 @@ export default function IBB(props) {
             if (token == null) {
                 servis.getToken(props.application_uuid)
                     .then(result => {
-                        setIsDeviceRegister(result.isDeviceRegister)
                         setToken(result.accessToken)
                     }).catch(error => {
                         console.log("message : ", error)
@@ -49,7 +48,7 @@ export default function IBB(props) {
         try {
             if (token != null) {
                 servis
-                    .initialization(props.application_uuid, token, isDeviceRegister)
+                    .initialization(props.application_uuid, token)
                     .then((state) => {
                         console.log("state", state)
                         //Uygulama Tüm Bilgileri

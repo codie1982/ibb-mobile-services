@@ -43,6 +43,7 @@ export default class Settings {
                 this.baseurl = `${this.URL}`;
                 this.api = `${this.baseurl}${this.SLAH}${this.API}${this.SLAH}${this.NPM}${this.SLAH}${this.VER}${this.SLAH}${this.NPM}${this.SLAH}`;
                 this.tokenurl = this.api.concat("gettoken");
+                this.isDeviceRegister = this.api.concat("isdeviceregister");
                 this.initialization = this.api.concat("initialization");
                 this.representation = this.api.concat("representation");
                 this.representation_finishdownload = this.api.concat("representation/finishdownload");
@@ -59,6 +60,7 @@ export default class Settings {
                         base: this.baseurl,
                         token: this.tokenurl,
                         initialization: this.initialization,
+                        isDeviceRegister: this.isDeviceRegister,
                         representation: {
                             new: this.representation,
                             finish: this.representation_finishdownload,
