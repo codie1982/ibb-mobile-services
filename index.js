@@ -54,20 +54,25 @@ export default function IBB(props) {
                         //Uygulama Tüm Bilgileri
                         //Kullanıcı Bilgileri
                         //Versiyon Bilgileri
-                        setApplicationInfo(state.application_info)
-                        setToken(token.accessToken)
-                        setScreen({
-                            action: state.version_info.action,
-                            component: state.version_info.component,
-                            type: state.version_info.type,
-                            publish_version: state.version_info.version,
-                            message: state.version_info.message,
-                            application: {
-                                application: state.application_info.application,
-                                package: state.application_info.package,
-                                current_version: state.application_info.current_version,
+                        if (state != null) {
+                            if (state.success) {
+                                let data = state.data
+                                setApplicationInfo(data.application_info)
+                                setToken(token.accessToken)
+                                setScreen({
+                                    action: data.version_info.action,
+                                    component: data.version_info.component,
+                                    type: data.version_info.type,
+                                    publish_version: data.version_info.version,
+                                    message: data.version_info.message,
+                                    application: {
+                                        application: data.application_info.application,
+                                        package: data.application_info.package,
+                                        current_version: data.application_info.current_version,
+                                    }
+                                })
                             }
-                        })
+                        }
                     }).catch(error => {
                         console.log("initialization HATA : ", error.message)
                     })
@@ -79,8 +84,10 @@ export default function IBB(props) {
     }, [token])
 
     const closeScreen = () => {
+        console.log("DENME")
         setScreen({ action: false })
     }
+
     if (screen.action) {
         return servis.getComponent(screen.component, screen.type, screen.publish_version, screen.message, screen.application, token, closeScreen)
     } else {

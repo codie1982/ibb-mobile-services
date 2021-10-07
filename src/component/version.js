@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Linking ,Alert} from "react-native"
+import { Linking, Alert } from "react-native"
 import { View, Text, Platform, Button, StyleSheet, NativeEventEmitter, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableHighlight } from 'react-native'
 import { RNIbbMobileServices } from "../library/module"
 import { combineURL, setStyle, Color, upperCase } from "../library/models/cdn"
@@ -27,7 +27,7 @@ const REPRESENTATIONSTATE = {
 }
 const IBBSTORE = "ibbstore"
 const GLOBALSTORE = "globalstore"
-export default function Version({ baseurl, publish_version, message, application, token, settings, close }) {
+export default function Version({ baseurl, publish_version, message, application, token, settings, closeCallback }) {
     //console.log("Detail", detail)
     const [isLoading, setIsLoading] = useState(true)
     const [upgradeButton, setUpgradeButton] = useState("")
@@ -98,7 +98,8 @@ export default function Version({ baseurl, publish_version, message, application
         }
         return () => {
             if (Platform.OS === 'android') {
-                eventEmitter.removeAllListeners()
+                eventEmitter.removeAllListeners("eventProgress")
+                eventEmitter.removeAllListeners("eventStatus")
             } else {
                 console.log("Yüklemeye Hazırlanıyor...")
             }
@@ -370,12 +371,14 @@ export default function Version({ baseurl, publish_version, message, application
     }
     //Ekranı Kapatmak için
     const closeSplashScreen = async () => {
-        close({
-            type: publish_version.info.version.type,
-            application_uuid: publish_version.application.application_uuid,
-            package_name: publish_version.application.package_name,
-            version_uuid: publish_version.application.version_uuid
-        })
+
+        /*  {
+             type: publish_version.info.version.type,
+             application_uuid: publish_version.application.application_uuid,
+             package_name: publish_version.application.package_name,
+             version_uuid: publish_version.application.version_uuid
+         } */
+        closeCallback()
     }
 
     if (isLoading) {
@@ -435,17 +438,49 @@ export default function Version({ baseurl, publish_version, message, application
                         </View>
                     }
                     <View style={styles.button_section}>
-                        <TouchableOpacity disabled={downloadStatus == STATUS_RUNNING ? true : false} style={styles.button_continer} onPress={updateNewVersion} >
-                            <View style={{ ...styles.uploadButtonBack, shadowColor: versionColor, borderColor: versionColor, backgroundColor: versionColor, opacity: 0.1 }} />
-                            <View style={{ ...styles.uploadButtonMiddel, borderColor: versionColor, backgroundColor: versionColor, opacity: 0.5 }} />
-                            <View style={{ ...styles.uploadButton, borderColor: versionColor, backgroundColor: versionColor }} />
+                        <TouchableOpacity disabled={downloadStatus == STATUS_RUNNING ? true : false} style={styles.button_continer}
+                            onPress={updateNewVersion} >
+                            <View style={{
+                                ...styles.uploadButtonBack,
+                                shadowColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                opacity: 0.1
+                            }} />
+                            <View style={{
+                                ...styles.uploadButtonMiddel,
+                                borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                opacity: 0.5
+                            }} />
+                            <View style={{
+                                ...styles.uploadButton,
+                                borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor
+                            }} />
                             <Text style={styles.uploadText}>{upgradeButton}</Text>
                         </TouchableOpacity>
                         {versionType == CRITICAL ? null :
-                            <TouchableOpacity disabled={downloadStatus == STATUS_RUNNING ? true : false} style={styles.button_continer} onPress={closeSplashScreen} >
-                                <View style={{ ...styles.uploadButtonBack, shadowColor: versionColor, borderColor: versionColor, backgroundColor: versionColor, opacity: 0.1 }} />
-                                <View style={{ ...styles.uploadButtonMiddel, borderColor: versionColor, backgroundColor: versionColor, opacity: 0.5 }} />
-                                <View style={{ ...styles.uploadButton, borderColor: versionColor, backgroundColor: versionColor }} />
+                            <TouchableOpacity disabled={downloadStatus == STATUS_RUNNING ? true : false} style={styles.button_continer}
+                                onPress={closeSplashScreen} >
+                                <View style={{
+                                    ...styles.uploadButtonBack,
+                                    shadowColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                    borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                    backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                    opacity: 0.1
+                                }} />
+                                <View style={{
+                                    ...styles.uploadButtonMiddel,
+                                    borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                    backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                    opacity: 0.5
+                                }} />
+                                <View style={{
+                                    ...styles.uploadButton,
+                                    borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                    backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor
+                                }} />
                                 <Text style={styles.uploadText}>{upperCase("sonra")}</Text>
                             </TouchableOpacity>}
                     </View>

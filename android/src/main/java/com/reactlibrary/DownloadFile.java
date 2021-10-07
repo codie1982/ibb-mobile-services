@@ -20,19 +20,9 @@ public class DownloadFile {
     private static String DASH = "-";
     private String chr;
 
-    public DownloadFile() {
-    }
-
     public DownloadFile(String filename, int versionNumber) {
         this.versionNumber = versionNumber;
-        this.filename = trtoEng(filename.toLowerCase());
-    }
-
-    public DownloadFile(String filename, int versionNumber, String title, String description) {
-        this.versionNumber = versionNumber;
-        this.filename = filename;
-        this.title = title;
-        this.description = description;
+        this.filename = trtoEng(filename.replaceAll("\\s+","").toLowerCase());
     }
 
     public DownloadFile prepare() {

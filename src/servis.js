@@ -5,6 +5,7 @@ import Error from "./component/error"
 import Settings from "./library/models/settings"
 import Model from "./library/models/model"
 import Request from "./library/http"
+import Index from "../index"
 export default class Servis {
     settings;
     constructor() {
@@ -65,6 +66,7 @@ export default class Servis {
         })
     }
 
+ 
     /**
      * Servisden gelen cevaplara göre ilgili componentleri açıyor.
      * @param {*} component 
@@ -75,7 +77,7 @@ export default class Servis {
      * @param {*} token 
      * @param {*} closeCallback 
      */
-    getComponent(component, type, publish_version, message, application, token, closeCallback) {
+    getComponent(component, type, publish_version, message, application, token,closeScreen) {
         if (type == "error") {
             return <Error message={message} />
         } else {
@@ -88,9 +90,9 @@ export default class Servis {
                         application={application}
                         settings={this.settings}
                         token={token}
-                        close={closeCallback} />
+                        closeCallback={closeScreen} />
                 case "test_version":
-                    return <Test detail={publish_version} message={message} close={closeCallback} />
+                    return <Test detail={publish_version} message={message} closeCallback={_closeCallback} />
                 case "no_version":
                     return <Error message={message} />
                 case "delete_application":

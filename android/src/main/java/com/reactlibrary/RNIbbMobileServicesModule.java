@@ -92,7 +92,9 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     @ReactMethod
     public void setFile(String filename,int version_number) {
         downloadFile = new DownloadFile(filename,version_number).prepare();
-        System.out.println("setFile Sonuc : "+downloadFile.getDirectory()+ " - "+ downloadFile.getFilename()+ " - "+ downloadFile.getFilepath(true));
+        System.out.println("downloadFile.getDirectory() " + downloadFile.getDirectory());
+        System.out.println("downloadFile.getFilename() " + downloadFile.getFilename());
+        System.out.println("downloadFile.getFilepath(true) " + downloadFile.getFilepath(true));
     }
     @ReactMethod
     public void checkDestination(Promise promise) {
@@ -182,15 +184,18 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     }
 
     private boolean checkPermission() {
-        System.out.println("checkPermission");
-        if (ContextCompat.checkSelfPermission(getCurrentActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            System.out.println("İzin Verilmiş");
-            return true;
-        } else {
-            this.getPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
-            System.out.println("İzin Verilmemiş");
-            return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            if (ContextCompat.checkSelfPermission(getCurrentActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                System.out.println("İzin Verilmiş");
+                return true;
+            } else {
+                this.getPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                System.out.println("İzin Verilmemiş");
+                return false;
+            }
+        }else {return true;
         }
+
     }
 
     public void getPermission(String[] permissions, int requestCode){
@@ -215,9 +220,12 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     }
 
     public void startDownload(String URL) {
+        System.out.println("Build.VERSION.SDK_INT :" + Build.VERSION.SDK_INT);
         if (Build.VERSION.SDK_INT >= 24) {
             if(!this.checkDownloadFile()){
                 if (LASTDOWNLOAD == null){
+                    System.out.println("Uri.parse(URL)" + Uri.parse(URL));
+
                     android.app.DownloadManager.Request request = new android.app.DownloadManager.Request(Uri.parse(URL))
                             .setTitle(downloadFile.getDownloadTitle())
                             .setDescription(downloadFile.getDownloadDescription())
@@ -227,29 +235,30 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                             .setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                             .setDestinationInExternalFilesDir(getCurrentActivity(),
                                     Environment.DIRECTORY_DOWNLOADS, downloadFile.getFilepath(false));
-
+                    System.out.println("request" + request.toString());
                     final android.app.DownloadManager downloadManager = (android.app.DownloadManager) getCurrentActivity().getSystemService(getCurrentActivity().DOWNLOAD_SERVICE);
                     LASTDOWNLOAD = downloadManager.enqueue(request);
-
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             boolean downloading = true;
                             while (downloading) {
                                 //System.out.println(downloading);
-                                android.app.DownloadManager.Query q = new android.app.DownloadManager.Query();
+                                DownloadManager.Query q = new DownloadManager.Query();
                                 q.setFilterById(LASTDOWNLOAD);
                                 final Cursor cursor = downloadManager.query(q);
                                 try {
                                     if(cursor !=null && cursor.moveToFirst()){
-                                        if (cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)) == android.app.DownloadManager.STATUS_SUCCESSFUL) {
+
+                                        System.out.println("downloadManager ERROR" + cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)));
+                                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
                                             downloading = false;
                                         }
-                                        if (cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)) == android.app.DownloadManager.STATUS_FAILED) {
+                                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                                             downloading = false;
                                         }
                                         if(downloading){
-                                            double downloaded_bytes = cursor.getDouble(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                            double downloaded_bytes = cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                                             final WritableMap params = Arguments.createMap();
                                             params.putDouble("downloaded_bytes", downloaded_bytes);
 
@@ -260,14 +269,14 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                                                 .emit("eventStatus", statusMessage(cursor));
                                     }else {
                                         getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                                .emit("eventStatus", android.app.DownloadManager.STATUS_FAILED);
+                                                .emit("eventStatus", DownloadManager.STATUS_FAILED);
                                     }
 
                                 }catch (Exception ex){
-                                    System.out.println(ex.getMessage());
+                                    System.out.println("Download Fail :" + ex.getMessage());
                                     getReactApplicationContext()
                                             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                            .emit("eventStatus", android.app.DownloadManager.STATUS_FAILED);
+                                            .emit("eventStatus", DownloadManager.STATUS_FAILED);
                                 }finally {
                                     cursor.close();
                                 }
@@ -275,6 +284,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
 
                         }
                     }).start();
+
                 }
             }
         }
@@ -347,6 +357,8 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                 context.startActivity(install);
             } else {
                 String authority = getReactApplicationContext().getPackageName() + ".eng.provider";
+                //String authority = "com.mobilestore.eng.provider";
+                System.out.println("file" + file);
                 Uri contentUri = FileProvider.getUriForFile(context, authority, file);
                 Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
                 install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

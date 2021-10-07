@@ -7,12 +7,12 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.android.alarm.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
     <application
         android:allowBackup="false"
-        android:usesCleartextTraffic="true">
+     >
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.eng.provider"
@@ -21,7 +21,7 @@
             >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_provider_paths" />
+                android:resource="@xml/store_provider_paths" />
         </provider>
     </application>
 </manifest>
