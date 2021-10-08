@@ -356,7 +356,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                 install.setDataAndType(uri, "application/vnd.android.package-archive");
                 context.startActivity(install);
             } else {
-                String authority = getReactApplicationContext().getPackageName() + ".eng.provider";
+                String authority = getReactApplicationContext().getPackageName() + ".provider";
                 //String authority = "com.mobilestore.eng.provider";
                 System.out.println("file" + file);
                 Uri contentUri = FileProvider.getUriForFile(context, authority, file);

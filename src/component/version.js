@@ -29,6 +29,7 @@ const IBBSTORE = "ibbstore"
 const GLOBALSTORE = "globalstore"
 export default function Version({ baseurl, publish_version, message, application, token, settings, closeCallback }) {
     //console.log("Detail", detail)
+    console.log("publish_version",publish_version)
     const [isLoading, setIsLoading] = useState(true)
     const [upgradeButton, setUpgradeButton] = useState("")
     const [progress, setProgress] = useState(0)
