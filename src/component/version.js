@@ -22,14 +22,15 @@ const STATUS_SUCCESSFUL = 8
 
 const REPRESENTATIONSTATE = {
     install: "install",
+    iosinstall: "iosinstall",
     download: "download",
     fail: "fail",
 }
 const IBBSTORE = "ibbstore"
 const GLOBALSTORE = "globalstore"
-export default function Version({ baseurl, publish_version, message, application, token, settings, closeCallback }) {
+let eventEmitter;
+export default function Version({ baseurl, publish_version, message, application, token, settings, closeCallback, card }) {
     //console.log("Detail", detail)
-    console.log("publish_version",publish_version)
     const [isLoading, setIsLoading] = useState(true)
     const [upgradeButton, setUpgradeButton] = useState("")
     const [progress, setProgress] = useState(0)
@@ -42,7 +43,6 @@ export default function Version({ baseurl, publish_version, message, application
 
     //representation
     const [representionState, setRepresentionState] = useState(null)
-
     //ismini Ayarla
     const [applicationname, setApplicationname] = useState(Util.setName(publish_version.info.name))
     //Yayınlanma Yeri
@@ -60,7 +60,7 @@ export default function Version({ baseurl, publish_version, message, application
     const [current_version_number, setCurrent_version_number] = useState(publish_version.version.number.current)
     const [publish_version_number, setPublish_version_number] = useState(publish_version.version.number.publish)
 
-    const eventEmitter = new NativeEventEmitter(RNIbbMobileServices);
+
     const [isDownloadedble, setIsDownloadedble] = useState(true)
 
     const [persent, setPersent] = useState(0)
@@ -84,6 +84,7 @@ export default function Version({ baseurl, publish_version, message, application
         //setDownloadState(false)
         setUpgradeButton(upperCase("güncelle"))
         if (Platform.OS === 'android') {
+            eventEmitter = new NativeEventEmitter(RNIbbMobileServices);
             eventEmitter.addListener("eventProgress", (event) => {
                 setDownloadedBytes(event.downloaded_bytes)
             })
@@ -122,18 +123,18 @@ export default function Version({ baseurl, publish_version, message, application
 
     //Response
     useEffect(() => {
-        if (newRepresentionResponse != null)
-            if (newRepresentionResponse)
-                setRepresentionState(REPRESENTATIONSTATE.download)
-
+        if (newRepresentionResponse != null) {
+            if (newRepresentionResponse) {
+                if (Platform.OS == "android") {
+                    setRepresentionState(REPRESENTATIONSTATE.download)
+                } else if (Platform.OS == "ios") {
+                    setRepresentionState(REPRESENTATIONSTATE.install)
+                }
+            }
+        }
 
     }, [newRepresentionResponse])
-    //RepresentationInstall
-    useEffect(() => {
-        if (repInstalResponse != null)
-            if (repInstalResponse)
-                setRepresentionState(REPRESENTATIONSTATE.install)
-    }, [repInstalResponse])
+
 
     //RepresentStatus
     useEffect(() => {
@@ -153,6 +154,27 @@ export default function Version({ baseurl, publish_version, message, application
                             console.log("4. represention_state - install")
                             await RNIbbMobileServices.installApplication()
                             setRepresentionState(null)
+                        } else if (Platform.OS == "ios") {
+                            //console.log("ios_install_path", ios_install_path)
+                            console.log("preInstallApplication", publish_version.info.version.itmsservices)
+                            let request = new Request
+                            await request.send(settings.url.updatescreen, card, token)
+                            let response = await request.get(publish_version.info.version.itmsservices)
+                            console.log("preInstallApplication response", response)
+                            if (response.success) {
+                                if (response.plist != "") {
+                                    console.log("4. represention_state - ios install", response.plist)
+                                    const plistpath = `itms-services://?action=download-manifest&url=${response.plist}`
+                                    const canOpen = await Linking.canOpenURL(plistpath);
+                                    if (canOpen) {
+                                        await Linking.openURL(plistpath);
+                                    } else {
+                                        Alert.alert(`Don't know how to open this URL: ${url}`);
+                                    }
+                                }
+                            } else {
+                                Alert.alert("", "İndirme Linkine erişilemiyor. Lüten daha sonra tekrar deneyin")
+                            }
                         }
                         break;
                     case REPRESENTATIONSTATE.fail:
@@ -266,52 +288,72 @@ export default function Version({ baseurl, publish_version, message, application
         //await dispatch(subScribeApplication(subScribeData))
         //İndirme yerine göre
 
+
         if (isDownloadedble) {
             //Uygulama global store 'da yüklü ise global store tarafına yönlendirilebilir.
             if (publish_location == IBBSTORE) {
-                await RNIbbMobileServices.setFile(applicationTilte, parseInt(settings.device.verison_number))
-                await RNIbbMobileServices.checkDestination()
-                    .then(isExist => {
-                        (async () => {
-                            console.log("1. isExist", isExist)
-                            if (isExist) {
-                                await RNIbbMobileServices.checkFileAccuracy(publish_version.info.version.filesize.size)
-                                    .then(accuracy => {
-                                        (async () => {
-                                            if (accuracy) {
-                                                Alert.alert("Hata", "Daha önce indirilen bir dosya mevcutta",
-                                                    [
-                                                        {
-                                                            text: "Yeniden İndir",
-                                                            onPress: async () => {
-                                                                await RNIbbMobileServices.deleteFile()
-                                                                preDownloadApplication()
-                                                            }
-                                                        },
-                                                        {
-                                                            text: "Vazgeç",
-                                                            onPress: () => console.log("Cancel Pressed"),
-                                                            style: "cancel"
-                                                        },
-                                                        { text: "Kur", onPress: () => preInstallApplication() }
-                                                    ])
-                                            } else {
-                                                //Dosya Hatalı ise Dosyayı silip yeniden Indir
-                                                await RNIbbMobileServices.deleteFile()
-                                                preDownloadApplication()
-                                            }
-                                        })()
-                                    })
-                            } else {
-                                //Dosya Bulunmuyorsa
-                                //indirme Proedürlerini uygula
-                                console.log("2. preDownloadApplication")
-                                preDownloadApplication()
-                            }
-                        })()
-                    }).catch(err => {
-                        console.log("HATA ", err)
-                    })
+                if (Platform.OS == "android") {
+                    await RNIbbMobileServices.setFile(applicationTilte, parseInt(settings.device.verison_number))
+                    await RNIbbMobileServices.checkDestination()
+                        .then(isExist => {
+                            (async () => {
+                                console.log("1. isExist", isExist)
+                                if (isExist) {
+                                    await RNIbbMobileServices.checkFileAccuracy(publish_version.info.version.filesize.size)
+                                        .then(accuracy => {
+                                            (async () => {
+                                                if (accuracy) {
+                                                    Alert.alert("Hata", "Daha önce indirilen bir dosya mevcutta",
+                                                        [
+                                                            {
+                                                                text: "Yeniden İndir",
+                                                                onPress: async () => {
+                                                                    await RNIbbMobileServices.deleteFile()
+                                                                    preDownloadApplication()
+                                                                }
+                                                            },
+                                                            {
+                                                                text: "Vazgeç",
+                                                                onPress: () => console.log("Cancel Pressed"),
+                                                                style: "cancel"
+                                                            },
+                                                            { text: "Kur", onPress: () => preInstallApplication() }
+                                                        ])
+                                                } else {
+                                                    //Dosya Hatalı ise Dosyayı silip yeniden Indir
+                                                    await RNIbbMobileServices.deleteFile()
+                                                    preDownloadApplication()
+                                                }
+                                            })()
+                                        })
+                                } else {
+                                    //Dosya Bulunmuyorsa
+                                    //indirme Proedürlerini uygula
+                                    console.log("2. preDownloadApplication")
+                                    preDownloadApplication()
+                                }
+                            })()
+                        }).catch(err => {
+                            console.log("HATA ", err)
+                        })
+                } else if (Platform.OS == "ios") {
+                    //IOS için Indirme seçenekleri
+                    preDownloadApplication()
+                }
+            } else {
+                if (publish_location == GLOBALSTORE) {
+                    if (Platform.OS == "android") {
+                        const global_store_url = `market://details?id=${publish_version.application.package_name}`
+                        const canOpen = await Linking.canOpenURL(global_store_url)
+                        if (canOpen) {
+                            await Linking.openURL(global_store_url)
+                        } else {
+                            Alert.alert("Global store linkine ulaşılamıyor")
+                        }
+                    } else if (Platform.OS == "ios") {
+                        //TODO : IOSGLOBAL STORE YÖNLENDIRME
+                    }
+                }
             }
         }
     }
@@ -329,38 +371,53 @@ export default function Version({ baseurl, publish_version, message, application
         //          V
         //         Hayır
         // Representionı güncelle Durum Fail olarak --> İşlemi Bitir
+        let request = new Request
+        console.log("settings.url.updatescreen, card, token", settings.url.updatescreen, card, token)
+        if (token != null)
+            await request.send(settings.url.updatescreen, card, token)
+
         console.log("3. downloadApplication")
+        const representiondata =
+        {
+            representationid: representeid,
+            application_uuid: publish_version.application.application_uuid,
+            package_name: publish_version.application.package_name,
+            package_uuid: publish_version.application.package_uuid,//Burası Yeni
+            version_uuid: publish_version.application.version_uuid,
+            platform: Platform.OS,
+            deviceid: settings.device.device_id,
+            location: "npmmodule",
+            card: card,
+            version_number: publish_version.version.number.publish,
+            ipAddress: settings.netinfo.ipAddress
+        }
         if (Platform.OS == "android") {
             //Dosya İndirmesi
-            console.log("publish_version", publish_version)
-            const representiondata =
-            {
-                representationid: representeid,
-                application_uuid: publish_version.application.application_uuid,
-                package_name: publish_version.application.package_name,
-                package_uuid: publish_version.application.package_uuid,//Burası Yeni
-                version_uuid: publish_version.application.version_uuid,
-                platform: Platform.OS,
-                deviceid: settings.device.device_id,
-                location: "npmmodule",
-                version_number: publish_version.version.number.publish,
-                download_status: STATUS_PENDING,
-                progress: 0,
-                ipAddress: settings.netinfo.ipAddress
-            }
+            representiondata["download_status"] = STATUS_PENDING
+            representiondata["progress"] = 0
+
             console.log("4. Platform.Version", Platform.Version)
             if (Platform.Version > 19) {
                 console.log("5. represention data", representiondata)
                 //Yeni bir Represent oluştur
                 const request = new Request();
-                const response = await request.send(settings.url.representation.new, { representiondata, userid: null }, token)
-                console.log("represention data response", response)
-                setNewRepresentionResponse(response)
+                if (token != null) {
+                    const response = await request.send(settings.url.representation.new, { representiondata, userid: null }, token)
+                    console.log("represention data response", response)
+                    setNewRepresentionResponse(response)
+                }
             } else {
                 Alert.alert("HATA", "Dosya indirme ve yükleme işlemleri Android 19 versiyonu (Android KITKAT) altını desteklemez")
             }
         } else {
             //Platform IOS
+            representiondata["download_status"] = STATUS_RUNNING
+            representiondata["progress"] = 100
+            const request = new Request();
+            if (token != null) {
+                const response = await request.send(settings.url.representation.new, { representiondata, userid: null }, token)
+                setNewRepresentionResponse(response)
+            }
         }
     }
     //Uygulamayı Kurmak için
@@ -372,13 +429,9 @@ export default function Version({ baseurl, publish_version, message, application
     }
     //Ekranı Kapatmak için
     const closeSplashScreen = async () => {
-
-        /*  {
-             type: publish_version.info.version.type,
-             application_uuid: publish_version.application.application_uuid,
-             package_name: publish_version.application.package_name,
-             version_uuid: publish_version.application.version_uuid
-         } */
+        let request = new Request
+        if (token != null)
+            await request.send(settings.url.closescreen, card, token)
         closeCallback()
     }
 
@@ -406,64 +459,45 @@ export default function Version({ baseurl, publish_version, message, application
 
                 </View>
                 <View style={styles.section}>
-                    <View style={styles.application_logo}>
-                        <Image
-                            style={styles.application_logo_image}
-                            source={{
-                                uri: applicationLogo,
-                            }}
-                        />
-                    </View>
-                    <View style={styles.version_alert} >
-                        <Text style={{ ...styles.version_alert_text, color: Color.textColor }}>{"Yeni Bir Güncelleme Var"}</Text>
-                    </View>
-                    <View style={styles.application_title}>
-                        <Text style={styles.application_title_bold_text}>{applicationTilte}</Text>
-                        <Text style={styles.application_title_text}>{" "}</Text>
-                        <Text style={styles.application_title_text}>{"Uygulaması"}</Text>
-                    </View>
-                    <View style={styles.application_version}>
-                        <Text style={styles.application_version_text}>V {current_version_number}</Text>
-                        <Text style={styles.application_version_text}>{" ------> "}</Text>
-                        <Text style={styles.application_version_text}>V {publish_version_number}</Text>
-                    </View>
-                    {typeof versionDescription == "object" ?
-                        <View style={styles.version_description_list} >
-                            {versionDescription.map(item => (
-                                <Text style={{ ...styles.version_description_text_list, color: Color.textColor }}>{ucFirst(item)}</Text>
-                            ))}
+                    <View style={styles.section_description}>
+
+                        <View style={styles.application_logo}>
+                            <Image
+                                style={styles.application_logo_image}
+                                source={{
+                                    uri: applicationLogo,
+                                }}
+                            />
                         </View>
-                        :
-                        <View style={styles.version_description} >
-                            <Text numberOfLines={4} style={{ ...styles.version_description_text, color: Color.textColor }}>{ucFirst(versionDescription)}</Text>
+                        <View style={styles.version_alert} >
+                            <Text style={{ ...styles.version_alert_text, color: Color.textColor }}>{"Yeni Bir Güncelleme Var"}</Text>
                         </View>
-                    }
-                    <View style={styles.button_section}>
-                        <TouchableOpacity disabled={downloadStatus == STATUS_RUNNING ? true : false} style={styles.button_continer}
-                            onPress={updateNewVersion} >
-                            <View style={{
-                                ...styles.uploadButtonBack,
-                                shadowColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
-                                borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
-                                backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
-                                opacity: 0.1
-                            }} />
-                            <View style={{
-                                ...styles.uploadButtonMiddel,
-                                borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
-                                backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
-                                opacity: 0.5
-                            }} />
-                            <View style={{
-                                ...styles.uploadButton,
-                                borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
-                                backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor
-                            }} />
-                            <Text style={styles.uploadText}>{upgradeButton}</Text>
-                        </TouchableOpacity>
-                        {versionType == CRITICAL ? null :
+                        <View style={styles.application_title}>
+                            <Text style={styles.application_title_bold_text}>{applicationTilte}</Text>
+                            <Text style={styles.application_title_text}>{" "}</Text>
+                            <Text style={styles.application_title_text}>{"Uygulaması"}</Text>
+                        </View>
+                        <View style={styles.application_version}>
+                            <Text style={styles.application_version_text}>V {current_version_number}</Text>
+                            <Text style={styles.application_version_text}>{" ------> "}</Text>
+                            <Text style={styles.application_version_text}>V {publish_version_number}</Text>
+                        </View>
+                        {typeof versionDescription == "object" ?
+                            <View style={styles.version_description_list} >
+                                {versionDescription.map(item => (
+                                    <Text style={{ ...styles.version_description_text_list, color: Color.textColor }}>{ucFirst(item)}</Text>
+                                ))}
+                            </View>
+                            :
+                            <View style={styles.version_description} >
+                                <Text numberOfLines={4} style={{ ...styles.version_description_text, color: Color.textColor }}>{ucFirst(versionDescription)}</Text>
+                            </View>
+                        }
+                    </View>
+                    <View style={styles.section_action}>
+                        <View style={styles.button_section}>
                             <TouchableOpacity disabled={downloadStatus == STATUS_RUNNING ? true : false} style={styles.button_continer}
-                                onPress={closeSplashScreen} >
+                                onPress={updateNewVersion} >
                                 <View style={{
                                     ...styles.uploadButtonBack,
                                     shadowColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
@@ -482,8 +516,32 @@ export default function Version({ baseurl, publish_version, message, application
                                     borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
                                     backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor
                                 }} />
-                                <Text style={styles.uploadText}>{upperCase("sonra")}</Text>
-                            </TouchableOpacity>}
+                                <Text style={styles.uploadText}>{upgradeButton}</Text>
+                            </TouchableOpacity>
+                            {versionType == CRITICAL ? null :
+                                <TouchableOpacity disabled={downloadStatus == STATUS_RUNNING ? true : false} style={styles.button_continer}
+                                    onPress={closeSplashScreen} >
+                                    <View style={{
+                                        ...styles.uploadButtonBack,
+                                        shadowColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                        borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                        backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                        opacity: 0.1
+                                    }} />
+                                    <View style={{
+                                        ...styles.uploadButtonMiddel,
+                                        borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                        backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                        opacity: 0.5
+                                    }} />
+                                    <View style={{
+                                        ...styles.uploadButton,
+                                        borderColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor,
+                                        backgroundColor: downloadStatus == STATUS_RUNNING ? "#e1e1e1" : versionColor
+                                    }} />
+                                    <Text style={styles.uploadText}>{upperCase("sonra")}</Text>
+                                </TouchableOpacity>}
+                        </View>
                     </View>
                 </View>
             </View>
@@ -530,6 +588,12 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         alignItems: "center",
         marginVertical: 30,
+    },
+    section_description: {
+        flex: 1
+    },
+    section_action: {
+        bottom:30
     },
     application_logo: {
         width: 100,
@@ -656,7 +720,7 @@ const styles = StyleSheet.create({
     },
     button_section: {
         flexDirection: "row",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         alignItems: "center"
     },
     button_continer: {

@@ -65,8 +65,27 @@ export default class Servis {
             })()
         })
     }
+    /**
+        * uygulama ilk bağlantı kontrolü
+        * @param {string} application_uuid 
+        */
+    setclosescreen(cardinfo, token) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                const request = new Request;
+                let data = cardinfo
+                if (token) {
+                    let response = await request.send(this.settings.url.closescreen, data, token) //url, data, token
+                    console.log("response", response)
+                    resolve(response)
+                } else {
+                    reject("Token Bulunmuyor.")
+                }
 
- 
+            })()
+        })
+    }
+
     /**
      * Servisden gelen cevaplara göre ilgili componentleri açıyor.
      * @param {*} component 
@@ -77,7 +96,7 @@ export default class Servis {
      * @param {*} token 
      * @param {*} closeCallback 
      */
-    getComponent(component, type, publish_version, message, application, token,closeScreen) {
+    getComponent(component, type, publish_version, message, application, token,screenCard, closeScreen) {
         if (type == "error") {
             return <Error message={message} />
         } else {
@@ -90,6 +109,7 @@ export default class Servis {
                         application={application}
                         settings={this.settings}
                         token={token}
+                        card={screenCard}
                         closeCallback={closeScreen} />
                 case "test_version":
                     return <Test detail={publish_version} message={message} closeCallback={_closeCallback} />

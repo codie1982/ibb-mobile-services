@@ -6,7 +6,7 @@ export default class Request {
         return new Promise((resolve, reject) => {
             (async () => {
                 const config = this.createHeader(data, token)
-             
+
                 if (typeof url != "undefined") {
                     const response = await fetch(url, config)
                     const result = await response.json()
@@ -17,6 +17,23 @@ export default class Request {
             })()
         })
     }
+    get(url) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                const config = this.getcreateNoTokenHeader()
+                if (typeof url != "undefined") {
+                    const response = await fetch(url, config)
+                    const result = await response.json()
+                    resolve(result)
+                } else {
+                    reject({ url: url, message: "request error" })
+                }
+            })()
+        })
+    }
+
+
+    //Headers
     createHeader(data, token) {
         const header = {}
         header["method"] = "POST" // *GET, POST, PUT, DELETE, etc.
@@ -53,6 +70,19 @@ export default class Request {
             body: JSON.stringify(data) // body data type must match "Content-Type" header
         }
          */
+    }
+    getcreateNoTokenHeader() {
+        const header = {}
+        header["method"] = "GET" // *GET, POST, PUT, DELETE, etc.
+        header["mode"] = 'cors'   // no-cors, *cors, same-origin
+        header["cache"] = 'no-cache' // *default, no-cache, reload, force-cache, only-if-cached
+        header["credentials"] = 'same-origin' // include, *same-origin, omit
+        header["headers"] = {
+            'Content-Type': 'application/json',
+        }
+        header["redirect"] = 'follow'
+        header["referrerPolicy"] = 'no-referrer'
+        return header
     }
 }
 

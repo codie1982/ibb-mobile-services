@@ -45,6 +45,8 @@ export default class Settings {
                 this.tokenurl = this.api.concat("gettoken");
                 this.isDeviceRegister = this.api.concat("isdeviceregister");
                 this.initialization = this.api.concat("initialization");
+                this.closescreen = this.api.concat("closescreen");
+                this.updatescreen = this.api.concat("updatescreen");
                 this.representation = this.api.concat("representation");
                 this.representation_finishdownload = this.api.concat("representation/finishdownload");
                 this.representation_install = this.api.concat("representation/install");
@@ -60,6 +62,8 @@ export default class Settings {
                         base: this.baseurl,
                         token: this.tokenurl,
                         initialization: this.initialization,
+                        closescreen: this.closescreen,
+                        updatescreen: this.updatescreen,
                         isDeviceRegister: this.isDeviceRegister,
                         representation: {
                             new: this.representation,

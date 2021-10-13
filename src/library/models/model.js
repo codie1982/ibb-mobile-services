@@ -89,6 +89,7 @@ export default class Model {
         device.isLocationEnabled = await this.reactNativeDeviceInfo.isLocationEnabled()
         device.isHeadphonesConnected = await this.reactNativeDeviceInfo.isHeadphonesConnected()
         device.batteryLevel = await this.reactNativeDeviceInfo.getBatteryLevel()
+        device.isEmulator = await this.reactNativeDeviceInfo.isEmulator()
 
         device.brand = await this.reactNativeDeviceInfo.getBrand();
         device.manufacturer = await this.reactNativeDeviceInfo.getManufacturer()

@@ -9,6 +9,7 @@ export default function IBB(props) {
     const [applicationInfo, setApplicationInfo] = useState()
     const [token, setToken] = useState()
     const [screen, setScreen] = useState({ action: false, state: {} })
+    const [screenCard, setScreenCard] = useState()
     const [netState, setNetState] = useState(null)
     const [isDeviceRegister, setIsDeviceRegister] = useState(false)
     //Açıklamalar
@@ -58,7 +59,8 @@ export default function IBB(props) {
                             if (state.success) {
                                 let data = state.data
                                 setApplicationInfo(data.application_info)
-                                setToken(token.accessToken)
+                                setToken(token)
+                                setScreenCard(data.version_info.card)
                                 setScreen({
                                     action: data.version_info.action,
                                     component: data.version_info.component,
@@ -82,14 +84,15 @@ export default function IBB(props) {
         }
 
     }, [token])
-
     const closeScreen = () => {
-        console.log("DENME")
         setScreen({ action: false })
     }
 
     if (screen.action) {
-        return servis.getComponent(screen.component, screen.type, screen.publish_version, screen.message, screen.application, token, closeScreen)
+        return servis.getComponent(
+            screen.component,
+            screen.type, screen.publish_version,
+            screen.message, screen.application, token, screenCard, closeScreen)
     } else {
         return (
             props.children
