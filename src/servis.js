@@ -112,7 +112,7 @@ export default class Servis {
                         card={screenCard}
                         closeCallback={closeScreen} />
                 case "test_version":
-                    return <Test detail={publish_version} message={message} closeCallback={_closeCallback} />
+                    return <Test detail={publish_version} message={message} closeCallback={closeScreen} />
                 case "no_version":
                     return <Error message={message} />
                 case "delete_application":

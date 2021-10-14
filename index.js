@@ -15,7 +15,6 @@ export default function IBB(props) {
     //Açıklamalar
     useEffect(() => {
         //TODO : bu paketin doğruluğu kontrol edilmeli
-        console.log("props.config", props.config)
         if (props.config != null)
             props.config.packages.NetInfo.addEventListener(state => {
                 setNetState(state)
