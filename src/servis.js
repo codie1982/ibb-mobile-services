@@ -18,9 +18,9 @@ export default class Servis {
      * @param {*} application_uuid 
      * @param {*} netState 
      */
-    setServis = async (config, application_uuid, netState) => {
+    setServis = async (config, application_uuid, secret, netState) => {
         const settings = new Settings()
-        this.settings = await settings.setSettings(config, application_uuid, netState)
+        this.settings = await settings.setSettings(config, application_uuid, secret, netState)
     }
     /**
    * Servisden Token almak için
@@ -31,8 +31,13 @@ export default class Servis {
             (async () => {
                 if (application_uuid == "" || typeof application_uuid == "undefined") reject({ message: "Uygulama ID'si Tanımsız" })
                 const request = new Request;
-                let response = await request.send(this.settings.url.token, this.settings.model.token).catch(err => console.log("HATA", err))
-                resolve({ accessToken: response.accessToken, refreshToken: response.refreshToken, isDeviceRegister: response.isDeviceRegister })
+                let response = await request.get(this.settings.url.token, this.settings.model.token)
+                    .catch(err => console.log("HATA", err))
+                if (response.success) {
+                    resolve({ accessToken: response.accessToken, refreshToken: response.refreshToken, isDeviceRegister: response.isDeviceRegister })
+                } else {
+                    resolve(null)
+                }
             })()
         })
     }
@@ -96,7 +101,7 @@ export default class Servis {
      * @param {*} token 
      * @param {*} closeCallback 
      */
-    getComponent(component, type, publish_version, message, application, token,screenCard, closeScreen) {
+    getComponent(component, type, publish_version, message, application, token, screenCard, closeScreen) {
         if (type == "error") {
             return <Error message={message} />
         } else {

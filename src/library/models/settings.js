@@ -31,18 +31,19 @@ export default class Settings {
     ENDPOINT
     MAINPORT
 
-    setSettings = (config, application_uuid, netState) => {
+    setSettings = (config, application_uuid, secret, netState) => {
         return new Promise((resolve, reject) => {
             (async () => {
                 const RNDI = this.getRNDIPackage(config)
                 //const NETINFO = this.getNETINFOPackage(config)
                 //react-native-device-info paketi olmadan işleme devam edemiyoruz.
+
                 if (RNDI == null) return reject("RN Device Info paketi ekli değil");
                 const model = new Model(RNDI)
                 this.URL = config.url;
                 this.baseurl = `${this.URL}`;
                 this.api = `${this.baseurl}${this.SLAH}${this.API}${this.SLAH}${this.NPM}${this.SLAH}${this.VER}${this.SLAH}${this.NPM}${this.SLAH}`;
-                this.tokenurl = this.api.concat("gettoken");
+                this.tokenurl = `${this.baseurl}${this.SLAH}api/ui/v1/auth/gettoken?secret=${secret}`;
                 this.isDeviceRegister = this.api.concat("isdeviceregister");
                 this.initialization = this.api.concat("initialization");
                 this.closescreen = this.api.concat("closescreen");
@@ -76,7 +77,7 @@ export default class Settings {
                     },
                     device: {
                         device_id: this.deviceid,
-                        verison_number:this.verison_number
+                        verison_number: this.verison_number
                     },
                     netinfo: this.netState,
                     packages: this.packages

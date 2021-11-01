@@ -12,6 +12,7 @@ export default function IBB(props) {
     const [screenCard, setScreenCard] = useState()
     const [netState, setNetState] = useState(null)
     const [isDeviceRegister, setIsDeviceRegister] = useState(false)
+
     //Açıklamalar
     useEffect(() => {
         //TODO : bu paketin doğruluğu kontrol edilmeli
@@ -20,23 +21,21 @@ export default function IBB(props) {
                 setNetState(state)
             });
     }, [])
-
     useEffect(() => {
         (async () => {
             if (netState != null) {
                 const _servis = new Servis()
-                await _servis.setServis(props.config, props.application_uuid, netState)
+                await _servis.setServis(props.config, props.application_uuid, props.secret, netState)
                 setNServis(_servis)
             }
         })()
     }, [netState])
-
     useEffect(() => {
         if (typeof servis != "undefined") {
             if (token == null) {
                 servis.getToken(props.application_uuid)
                     .then(result => {
-                        setToken(result.accessToken)
+                        if (result) setToken(result.accessToken)
                     }).catch(error => {
                         console.log("message : ", error)
                         console.error("Token Oluturulamıyor")
@@ -47,8 +46,7 @@ export default function IBB(props) {
     useEffect(() => {
         try {
             if (token != null) {
-                servis
-                    .initialization(props.application_uuid, token)
+                servis.initialization(props.application_uuid, token)
                     .then((state) => {
                         console.log("state", state)
                         //Uygulama Tüm Bilgileri
@@ -83,9 +81,7 @@ export default function IBB(props) {
         }
 
     }, [token])
-    const closeScreen = () => {
-        setScreen({ action: false })
-    }
+    const closeScreen = () => { setScreen({ action: false }) }
 
     if (screen.action) {
         return servis.getComponent(

@@ -248,7 +248,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                                 final Cursor cursor = downloadManager.query(q);
                                 try {
                                     if(cursor !=null && cursor.moveToFirst()){
-
                                         System.out.println("downloadManager ERROR" + cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)));
                                         if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
                                             downloading = false;
@@ -260,7 +259,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                                             double downloaded_bytes = cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                                             final WritableMap params = Arguments.createMap();
                                             params.putDouble("downloaded_bytes", downloaded_bytes);
-
                                             getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                                     .emit("eventProgress", params);
                                         }
@@ -280,10 +278,8 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                                     cursor.close();
                                 }
                             }
-
                         }
                     }).start();
-
                 }
             }
         }
