@@ -5,8 +5,6 @@ import { RNIbbMobileServices } from "../library/module"
 import { combineURL, setStyle, Color, upperCase } from "../library/models/cdn"
 import * as Util from "../helper/Util"
 import Request from "../library/http"
-import { ucFirst } from '../../../../src/lib/utils/util'
-import { result } from 'lodash'
 const CRITICAL = "critical"
 const LOW = "low"
 const IMPORTANT = "important"
@@ -146,7 +144,8 @@ export default function Version({ baseurl, publish_version, message, application
                         if (Platform.OS == "android") {
                             console.log("9.1.2. uri: ", publish_version.info.version.file)
                             setDownloadStatus(true)
-                            await RNIbbMobileServices.setDownload(publish_version.info.version.file)
+                            let downloadfile = Util.addToken(publish_version.info.version.file, token)
+                            await RNIbbMobileServices.setDownload(downloadfile)
                         }
                         break;
                     case REPRESENTATIONSTATE.install:
@@ -485,12 +484,12 @@ export default function Version({ baseurl, publish_version, message, application
                         {typeof versionDescription == "object" ?
                             <View style={styles.version_description_list} >
                                 {versionDescription.map(item => (
-                                    <Text style={{ ...styles.version_description_text_list, color: Color.textColor }}>{ucFirst(item)}</Text>
+                                    <Text style={{ ...styles.version_description_text_list, color: Color.textColor }}>{Util.ucFirst(item)}</Text>
                                 ))}
                             </View>
                             :
                             <View style={styles.version_description} >
-                                <Text numberOfLines={4} style={{ ...styles.version_description_text, color: Color.textColor }}>{ucFirst(versionDescription)}</Text>
+                                <Text numberOfLines={4} style={{ ...styles.version_description_text, color: Color.textColor }}>{Util.ucFirst(versionDescription)}</Text>
                             </View>
                         }
                     </View>
@@ -593,7 +592,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     section_action: {
-        bottom:30
+        bottom: 30
     },
     application_logo: {
         width: 100,

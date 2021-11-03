@@ -47,3 +47,6 @@ export const ucFirst = (s) => {
             return $1.toUpperCase()
         })
 }
+export const addToken = (uri, token) => {
+    return uri + "&" + "token" + "=" + token
+}

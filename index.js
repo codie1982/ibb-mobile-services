@@ -82,7 +82,6 @@ export default function IBB(props) {
 
     }, [token])
     const closeScreen = () => { setScreen({ action: false }) }
-
     if (screen.action) {
         return servis.getComponent(
             screen.component,
