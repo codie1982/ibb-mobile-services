@@ -61,13 +61,14 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     private static String BATTERY_STATE = "batteryState";
     private static String BATTERY_LEVEL = "batteryLevel";
     private static String LOW_POWER_MODE = "lowPowerMode";
-    public  static String FILEPATH = "";
-    public  static String DIRECTORY = "";
-    public  static String FILENAME = "";
+    public static String FILEPATH = "";
+    public static String DIRECTORY = "";
+    public static String FILENAME = "";
     private String msg = "???";
     private int downloadStatus;
     private String applicationurl;
     public DownloadFile downloadFile;
+
     public RNIbbMobileServicesModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
@@ -77,37 +78,41 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
         reactContext.registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
     }
+
     @Override
     public String getName() {
         return "RNIbbMobileServices";
     }
+
     public void setApplicationurl(String url) {
         this.applicationurl = url;
     }
+
     public String getApplicationurl() {
         return applicationurl;
     }
 
     @ReactMethod
-    public void setFile(String filename,int version_number) {
-        downloadFile = new DownloadFile(filename,version_number).prepare();
+    public void setFile(String filename, int version_number) {
+        downloadFile = new DownloadFile(filename, version_number).prepare();
         System.out.println("downloadFile.getDirectory() " + downloadFile.getDirectory());
         System.out.println("downloadFile.getFilename() " + downloadFile.getFilename());
         System.out.println("downloadFile.getFilepath(true) " + downloadFile.getFilepath(true));
     }
+
     @ReactMethod
     public void checkDestination(Promise promise) {
         try {
             File downloadFolder = downloadFile.getPureDirectory(getReactApplicationContext());
-            if(!downloadFolder.exists()){
+            if (!downloadFolder.exists()) {
                 downloadFolder.mkdir();
             }
-            if(this.checkDownloadFile()){
+            if (this.checkDownloadFile()) {
                 promise.resolve(true);
-            }else {
+            } else {
                 promise.resolve(false);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             promise.reject("Dosya Oluşturma Hatası", e);
         }
     }
@@ -116,31 +121,32 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     public Boolean checkDownloadFile() {
         try {
             File downloadfile = downloadFile.getPureFile(getReactApplicationContext());
-            if(downloadfile.exists()){
+            if (downloadfile.exists()) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
+
     @ReactMethod //Dosya Doğruluğunu kontrol ediyor.
-    public void checkFileAccuracy(Integer fileSize ,Promise promise) {
+    public void checkFileAccuracy(Integer fileSize, Promise promise) {
         try {
-            if(this.checkDownloadFile()){
+            if (this.checkDownloadFile()) {
                 File df = downloadFile.getPureFile(getReactApplicationContext());
                 Long dfSize = df.length();
                 Long _fileSize = new Long(fileSize);
-                if(dfSize.equals(_fileSize)){
+                if (dfSize.equals(_fileSize)) {
                     promise.resolve(true);
-                }else {
+                } else {
                     promise.resolve(false);
                 }
-            }else {
+            } else {
                 promise.resolve(false);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             promise.reject("Dosya Oluşturma Hatası", e);
         }
     }
@@ -152,27 +158,29 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             startDownload(getApplicationurl());
         }
     }
+
     @ReactMethod
     public void deleteFile(Promise promise) {
         System.out.println("deleteFile");
         try {
-            if(this.checkDownloadFile()){
+            if (this.checkDownloadFile()) {
                 System.out.println("Dosya Yerinde Bulunuyor... Siliniyor");
                 this.deleteDownloadFile();
-            }else {
+            } else {
                 System.out.println("Dosya Yerinde Bulunamıyor");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             promise.reject("Dosya Bulunamıyor", e);
         }
     }
+
     public void deleteDownloadFile() {
         System.out.println(" Siliniyor");
         try {
             File file = downloadFile.getPureFile(getReactApplicationContext());
             file.delete();
-        }catch (Exception e){
-            System.out.println("Error : "+e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error : " + e.getMessage());
         }
     }
 
@@ -183,8 +191,8 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     }
 
     private boolean checkPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if (ContextCompat.checkSelfPermission(getCurrentActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 System.out.println("İzin Verilmiş");
                 return true;
             } else {
@@ -192,16 +200,18 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                 System.out.println("İzin Verilmemiş");
                 return false;
             }
-        }else {return true;
+        } else {
+            return true;
         }
 
     }
 
-    public void getPermission(String[] permissions, int requestCode){
+    public void getPermission(String[] permissions, int requestCode) {
         PermissionAwareActivity activity = (PermissionAwareActivity) getCurrentActivity();
         if (activity != null)
             activity.requestPermissions(permissions, requestCode, (PermissionListener) this);
     }
+
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // callback to native module
@@ -221,8 +231,8 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
     public void startDownload(String URL) {
         System.out.println("Build.VERSION.SDK_INT :" + Build.VERSION.SDK_INT);
         if (Build.VERSION.SDK_INT >= 24) {
-            if(!this.checkDownloadFile()){
-                if (LASTDOWNLOAD == null){
+            if (!this.checkDownloadFile()) {
+                if (LASTDOWNLOAD == null) {
                     System.out.println("Uri.parse(URL)" + Uri.parse(URL));
 
                     android.app.DownloadManager.Request request = new android.app.DownloadManager.Request(Uri.parse(URL))
@@ -241,21 +251,29 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                         @Override
                         public void run() {
                             boolean downloading = true;
+                            int count = 0;
                             while (downloading) {
+                                count++;
                                 //System.out.println(downloading);
                                 DownloadManager.Query q = new DownloadManager.Query();
                                 q.setFilterById(LASTDOWNLOAD);
                                 final Cursor cursor = downloadManager.query(q);
                                 try {
-                                    if(cursor !=null && cursor.moveToFirst()){
+                                    if (cursor != null && cursor.moveToFirst()) {
                                         System.out.println("downloadManager ERROR" + cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)));
+
                                         if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
                                             downloading = false;
                                         }
                                         if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                                             downloading = false;
                                         }
-                                        if(downloading){
+                                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_PAUSED) {
+                                            if (count >= 1000) downloading = false;
+                                        }
+
+
+                                        if (downloading) {
                                             double downloaded_bytes = cursor.getDouble(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                                             final WritableMap params = Arguments.createMap();
                                             params.putDouble("downloaded_bytes", downloaded_bytes);
@@ -264,17 +282,17 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                                         }
                                         getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                                 .emit("eventStatus", statusMessage(cursor));
-                                    }else {
+                                    } else {
                                         getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                                 .emit("eventStatus", DownloadManager.STATUS_FAILED);
                                     }
 
-                                }catch (Exception ex){
+                                } catch (Exception ex) {
                                     System.out.println("Download Fail :" + ex.getMessage());
                                     getReactApplicationContext()
                                             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                             .emit("eventStatus", DownloadManager.STATUS_FAILED);
-                                }finally {
+                                } finally {
                                     cursor.close();
                                 }
                             }
@@ -298,7 +316,7 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                 msg = DownloadManager.STATUS_PENDING;
                 break;
             case DownloadManager.STATUS_RUNNING:
-                msg =DownloadManager.STATUS_RUNNING;
+                msg = DownloadManager.STATUS_RUNNING;
                 break;
             case DownloadManager.STATUS_SUCCESSFUL:
                 msg = DownloadManager.STATUS_SUCCESSFUL;
@@ -323,23 +341,25 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                             Toast.makeText(reactContext, "İndirme Başarısız. Lütfen tekrar deneyin", Toast.LENGTH_SHORT).show();
                             getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                     .emit("eventStatus", android.app.DownloadManager.STATUS_FAILED);
-                            System.out.println("İndirme Tamamlandı "+android.app.DownloadManager.STATUS_FAILED);
+                            System.out.println("İndirme Tamamlandı " + android.app.DownloadManager.STATUS_FAILED);
                             break;
                         case android.app.DownloadManager.STATUS_SUCCESSFUL:
                             Toast.makeText(reactContext, "İndirme Başarılı gerçekleşti.Uygulama kurulumu otomatik başlatılacaktır.", Toast.LENGTH_SHORT).show();
                             getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                     .emit("eventStatus", android.app.DownloadManager.STATUS_SUCCESSFUL);
-                            System.out.println("İndirme Tamamlandı "+ android.app.DownloadManager.STATUS_SUCCESSFUL);
+                            System.out.println("İndirme Tamamlandı " + android.app.DownloadManager.STATUS_SUCCESSFUL);
                             break;
-                        default: break;
+                        default:
+                            break;
                     }
                 }
             context.unregisterReceiver(this);
         }
     };
+
     public void setupApplication(Context context) {
         File file = downloadFile.getPureFile(context);
-        System.out.println("FILE : "+file);
+        System.out.println("FILE : " + file);
         System.out.println("exists : " + file.exists());
         System.out.println("getName : " + file.getName());
         System.out.println("getPath : " + file.getPath());
