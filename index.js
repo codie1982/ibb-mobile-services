@@ -43,6 +43,7 @@ export default function IBB(props) {
             }
         }
     }, [servis])
+    
     useEffect(() => {
         try {
             if (token != null) {
@@ -70,6 +71,7 @@ export default function IBB(props) {
                                         current_version: data.application_info.current_version,
                                     }
                                 })
+                                props.onReady(state)
                             }
                         }
                     }).catch(error => {
@@ -81,6 +83,7 @@ export default function IBB(props) {
         }
 
     }, [token])
+
     const closeScreen = () => { setScreen({ action: false }) }
     if (screen.action) {
         return servis.getComponent(
@@ -94,10 +97,15 @@ export default function IBB(props) {
     }
 }
 
+export function addFcmToken(fcmToken) {
+    console.log("token", token)
+    console.log("addFcmToken", fcmToken)
+}
 
 IBB.propTypes = {
     application_uuid: PropTypes.string,
-    config: PropTypes.object
+    config: PropTypes.object,
+    onInit: PropTypes.func
 };
 
 

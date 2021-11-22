@@ -194,7 +194,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
             }
         }else {return true;
         }
-
     }
 
     public void getPermission(String[] permissions, int requestCode){
@@ -352,7 +351,6 @@ public class RNIbbMobileServicesModule extends ReactContextBaseJavaModule implem
                 context.startActivity(install);
             } else {
                 String authority = getReactApplicationContext().getPackageName() + ".provider";
-                //String authority = "com.mobilestore.eng.provider";
                 System.out.println("file" + file);
                 Uri contentUri = FileProvider.getUriForFile(context, authority, file);
                 Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);

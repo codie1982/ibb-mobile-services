@@ -60,13 +60,13 @@ export default class Servis {
                     model: this.settings.model,
                     netinfo: this.settings.netinfo,
                 }
+                
                 if (token) {
                     let response = await request.send(this.settings.url.initialization, data, token) //url, data, token
                     resolve(response)
                 } else {
                     reject("Token Bulunmuyor.")
                 }
-
             })()
         })
     }
